@@ -32,12 +32,8 @@ class ImagerProfile(models.Model):
                  ('artistic', 'Artistic'),
                  ('underwater', 'Underwater')))
     user = models.OneToOneField(User, related_name='profile')
-
-    @property
-    def is_active(self):
-        """Whether the user is currently active or not."""
-        return self.user.is_active
+    is_active = models.BooleanField(default=True)
 
     def active():
         """Get a QuerySet of all active profiles."""
-        return User.objects.filter(is_active=True)
+        return ImagerProfile.objects.filter(is_active=True)
