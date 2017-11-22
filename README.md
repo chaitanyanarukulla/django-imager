@@ -1,5 +1,8 @@
 # django-imager
 
+[![Build Status](https://travis-ci.org/chaitanyanarukulla/django-imager.svg?branch=master)](https://travis-ci.org/chaitanyanarukulla/django-imager)
+[![Coverage Status](https://coveralls.io/repos/github/chaitanyanarukulla/django-imager/badge.svg)](https://coveralls.io/github/chaitanyanarukulla/django-imager)
+
 **Author**: Megan Flood and Chaitanya Naru
 
 **Version**: 1.0.0
