@@ -15,7 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.auth import views
+from imagersite.views import home_view, register_view
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^$', home_view, name='home'),
+    url(r'^register/$', register_view, name='register'),
+    url(r'^login/$', views.login, name='login'),
+    url(r'^logout/$', views.logout, name='logout',)
 ]
