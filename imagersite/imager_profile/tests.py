@@ -2,7 +2,33 @@
 from django.test import TestCase
 from imager_profile.models import ImagerProfile, User
 
+import factory
+import random
 # Create your tests here.
+
+
+class UserFactory(factory.django.DjangoModelFactory):
+    """Factory for fake User."""
+
+    class Meta:
+        model = User
+
+    username = factory.Sequence(lambda n:
+                                '{}{}'.format(factory.Faker('first_name'), n))
+    email = factory.Faker('email')
+
+
+class ProfileFactory(factory.django.DjangoModelFactory):
+    """Factory for fake ImagerProfile."""
+
+    class Meta:
+        model = ImagerProfile
+
+    website = factory.Faker('url')
+    location = factory.Faker('address')
+    fee = random.uniform(0, 100)
+    bio = factory.Faker('paragraph')
+    phone = factory.Faker('phone_number')
 
 
 class ProfileTests(TestCase):
@@ -21,17 +47,18 @@ class ProfileTests(TestCase):
                                 user=user)
         profile.save()
 
-        user = User(username='bob2', email='bob2@bob.net')
-        user.set_password('password')
+        user = UserFactory.create()
+        user.set_password(factory.Faker('password'))
         user.save()
-        profile = ImagerProfile(website='www.timey.net',
-                                location='here',
-                                fee=10.00,
-                                bio='I hate photography.',
-                                phone='123-4567',
-                                user=user,
-                                is_active=False)
+        profile = ProfileFactory.create(user=user, is_active=False)
         profile.save()
+
+        for _ in range(10):
+            user = UserFactory.create()
+            user.set_password(factory.Faker('password'))
+            user.save()
+            profile = ProfileFactory.create(user=user)
+            profile.save()
 
     def test_profile_has_website(self):
         """Test that a profile has a website."""
@@ -79,3 +106,11 @@ class ProfileTests(TestCase):
         active_profiles = ImagerProfile.active()
         all_profiles = ImagerProfile.objects.all()
         self.assertEquals(active_profiles.count(), all_profiles.count() - 1)
+
+    def test_all_profiles_created(self):
+        """Test that all profiles were added to the database."""
+        self.assertEquals(ImagerProfile.objects.all().count(), 12)
+
+    def test_all_users_created(self):
+        """Test that all users were added to the database."""
+        self.assertEquals(User.objects.all().count(), 12)

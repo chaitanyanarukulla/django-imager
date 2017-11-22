@@ -3,6 +3,8 @@ coverage==4.4.2
 decorator==4.1.2
 Django==1.11
 django-multiselectfield==0.1.8
+factory-boy==2.9.2
+Faker==0.8.7
 ipython==6.2.1
 ipython-genutils==0.2.0
 jedi==0.11.0
@@ -13,8 +15,10 @@ prompt-toolkit==1.0.15
 psycopg2==2.7.3.2
 ptyprocess==0.5.2
 Pygments==2.2.0
+python-dateutil==2.6.1
 pytz==2017.3
 simplegeneric==0.8.1
 six==1.11.0
+text-unidecode==1.1
 traitlets==4.3.2
 wcwidth==0.1.7
