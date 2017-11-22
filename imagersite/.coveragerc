@@ -1,6 +1,6 @@
 [run]
 omit = 
-    */migrations/*,
+    */migrations/*
     */tests.py
     manage.py
     imagersite/wsgi.py
