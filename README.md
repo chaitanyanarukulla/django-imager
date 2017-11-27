@@ -50,6 +50,7 @@ Export environmental variables pointing to the location of database, your userna
 (ENV) django-imager $ export DB_USER='(your postgresql username)'
 (ENV) django-imager $ export DB_PASS='(your postgresql password)'
 (ENV) django-imager $ export DB_HOST='localhost'
+(ENV) django-imager $ export DEBUG='True'
 ```
 
 Then initialize the database with the `migrate` command from `manage.py`

@@ -10,7 +10,7 @@ class ImagerProfile(models.Model):
 
     website = models.URLField(max_length=180, blank=True, null=True)
     location = models.CharField(max_length=180, blank=True, null=True)
-    fee = models.FloatField(blank=True, null=True)
+    fee = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True)
     camera = models.CharField(max_length=180, blank=True, null=True,
                               choices=(('DSLR', 'Digital Single Lens Reflex'),
                                        ('M', 'Mirrorless'),
