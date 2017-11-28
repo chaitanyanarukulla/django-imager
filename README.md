@@ -1,11 +1,11 @@
 # django-imager
 
 [![Build Status](https://travis-ci.org/chaitanyanarukulla/django-imager.svg?branch=master)](https://travis-ci.org/chaitanyanarukulla/django-imager)
-[![Coverage Status](https://coveralls.io/repos/github/chaitanyanarukulla/django-imager/badge.svg)](https://coveralls.io/github/chaitanyanarukulla/django-imager)
+[![Coverage Status](https://coveralls.io/repos/github/chaitanyanarukulla/django-imager/badge.svg?branch=master)](https://coveralls.io/github/chaitanyanarukulla/django-imager?branch=master)
 
 **Author**: Megan Flood and Chaitanya Naru
 
-**Version**: 1.0.0
+**Version**: 1.2.0
 
 ## Overview
 A simple image management website using Django.
@@ -13,6 +13,11 @@ A simple image management website using Django.
 ## Routes
 | Route | Name | Description |
 |:--|--|:--|
+|`/`|home|the landing page|
+|`/login`|login|GET: the login form page<br>POST: logs a user into their account, {username, password}|
+|`/logout`|logout|log out the currently logged in user|
+|`/accounts/*`|all registration routes| included from [django-registration](http://django-registration.readthedocs.io/en/stable/index.html)|
+|`/admin/*`|all built-in admin routes| included from [Django admin](https://docs.djangoproject.com/en/1.11/ref/contrib/admin/#reversing-admin-urls)|
 
 
 ## Getting Started
@@ -69,7 +74,7 @@ Application is served on http://localhost:8000
 You can test this application by first exporting an environmental variable pointing to the location of a testing database, then running the `test` command from `manage.py`.
 ```
 (ENV) django-imager $ export TEST_DB='test_imagersite'
-(ENV) django-imager $ python imagersite/manage.py test
+(ENV) django-imager $ python imagersite/manage.py test imagersite
 ```
 
 ## Architecture
@@ -77,4 +82,6 @@ Built with Python and Django framework. Tested through Django testing suite.
 
 ## Change Log
 
+11-28-2017 1:35pm - Added registration, login, and logout functionality with tests.
+11-21-2017 4:21pm - Added Profile Model for Users with tests.
 11-20-2017 12:53pm - Initail scaffolding.
