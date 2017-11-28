@@ -1,7 +1,22 @@
 """Tests for the imagersite routes."""
-from django.test import TestCase
-from imager_profile.models import User
 from django.core import mail
+from django.test import TestCase, RequestFactory
+from django.urls import reverse_lazy
+from imager_profile.models import User
+
+
+class MainViewUnitTests(TestCase):
+    """Tests for the view functions in imagersite."""
+
+    def setUp(self):
+        """Set up a dummy request."""
+        self.request = RequestFactory()
+
+    def test_home_view_returns_page_with_gallery(self):
+        """Test that the home_view function returns a page with gallery."""
+        from imagersite.views import home_view
+        response = home_view(self.request.get(''))
+        self.assertIn(b'tz-gallery', response.content)
 
 
 class RoutingTests(TestCase):
@@ -15,27 +30,27 @@ class RoutingTests(TestCase):
 
     def test_home_route_has_200_response(self):
         """Test that home route has a 200 response code."""
-        response = self.client.get('/')
+        response = self.client.get(reverse_lazy('home'))
         self.assertEqual(response.status_code, 200)
 
     def test_home_route_has_gallery(self):
         """Test that home route has a gallery on the page."""
-        response = self.client.get('/')
+        response = self.client.get(reverse_lazy('home'))
         self.assertIn(b'tz-gallery', response.content)
 
     def test_login_get_has_200_response(self):
         """Test that login get route has a 200 response code."""
-        response = self.client.get('/login/')
+        response = self.client.get(reverse_lazy('login'))
         self.assertEqual(response.status_code, 200)
 
     def test_login_get_login_form(self):
         """Test that login get route has a login form."""
-        response = self.client.get('/login/')
+        response = self.client.get(reverse_lazy('login'))
         self.assertIn(b'<h2 class="title">Login</h2>', response.content)
 
     def test_login_post_invalid_user_has_200_response(self):
         """Test that login with invalid username has a 200 response code."""
-        response = self.client.post('/login/', {
+        response = self.client.post(reverse_lazy('login'), {
             'username': 'fred',
             'password': 'password'
         })
@@ -43,7 +58,7 @@ class RoutingTests(TestCase):
 
     def test_login_post_invalid_user_displays_invalid_login(self):
         """Test that login with invalid username displays to bad login."""
-        response = self.client.post('/login/', {
+        response = self.client.post(reverse_lazy('login'), {
             'username': 'fred',
             'password': 'password'
         })
@@ -51,7 +66,7 @@ class RoutingTests(TestCase):
 
     def test_login_post_invalid_password_has_200_response(self):
         """Test that login with invalid username has a 200 response code."""
-        response = self.client.post('/login/', {
+        response = self.client.post(reverse_lazy('login'), {
             'username': 'bob',
             'password': 'passwordssss'
         })
@@ -59,7 +74,7 @@ class RoutingTests(TestCase):
 
     def test_login_post_invalid_password_displays_invalid_login(self):
         """Test that login with invalid username displays to bad login."""
-        response = self.client.post('/login/', {
+        response = self.client.post(reverse_lazy('login'), {
             'username': 'bob',
             'password': 'passwordssss'
         })
@@ -67,7 +82,7 @@ class RoutingTests(TestCase):
 
     def test_login_post_valid_login_has_302_response(self):
         """Test that login with valid login has a 302 response code."""
-        response = self.client.post('/login/', {
+        response = self.client.post(reverse_lazy('login'), {
             'username': 'bob',
             'password': 'password'
         })
@@ -75,75 +90,55 @@ class RoutingTests(TestCase):
 
     def test_login_post_validates_users(self):
         """Test that login validates users."""
-        response = self.client.get('/')
+        response = self.client.get(reverse_lazy('home'))
         self.assertNotIn(b'Welcome,', response.content)
-        self.client.post('/login/', {
+        self.client.post(reverse_lazy('login'), {
             'username': 'bob',
             'password': 'password'
         })
-        response = self.client.get('/')
+        response = self.client.get(reverse_lazy('home'))
         self.assertIn(b'Welcome,', response.content)
 
     def test_login_post_valid_login_redirects_to_home_page(self):
         """Test that login with valid login redirects to home page."""
-        response = self.client.post('/login/', {
+        response = self.client.post(reverse_lazy('login'), {
             'username': 'bob',
             'password': 'password'
         }, follow=True)
-        self.assertEqual(response.redirect_chain[0][0], '/')
+        self.assertEqual(response.redirect_chain[0][0], reverse_lazy('home'))
 
     def test_logout_get_has_200_response(self):
         """Test that logout get route has a 200 response code."""
-        response = self.client.get('/logout/')
+        response = self.client.get(reverse_lazy('logout'))
         self.assertEqual(response.status_code, 200)
 
     def test_logout_get_has_logged_out_title(self):
         """Test that logout get route has logged-out title."""
-        response = self.client.get('/logout/')
+        response = self.client.get(reverse_lazy('logout'))
         self.assertIn(b'You Are Logged Out', response.content)
 
     def test_logout_from_login_user_will_logsout_user(self):
         """Test that logout will redirects to logout page."""
         self.client.login(username='bob', password='password')
-        response = self.client.get('/')
+        response = self.client.get(reverse_lazy('home'))
         self.assertIn(b'Welcome,', response.content)
-        self.client.get('/logout/')
-        response = self.client.get('/')
+        self.client.get(reverse_lazy('logout'))
+        response = self.client.get(reverse_lazy('home'))
         self.assertNotIn(b'Welcome,', response.content)
 
     def test_register_get_has_200_response(self):
         """Test that register get route has a 200 response code."""
-        response = self.client.get('/accounts/register/')
+        response = self.client.get(reverse_lazy('registration_register'))
         self.assertEqual(response.status_code, 200)
 
     def test_register_get_has_register_form(self):
         """Test that register get route has registration form."""
-        response = self.client.get('/accounts/register/')
+        response = self.client.get(reverse_lazy('registration_register'))
         self.assertIn(b'<h2 class="title">Register</h2>', response.content)
-
-    def test_register_will_send_email_after_registration(self):
-        """Test registration will send Email after Registartion."""
-        self.client.post('/accounts/register/', {
-            'username': 'Rob',
-            'password1': 'Codefellows',
-            'password2': 'Codefellows',
-            'email': 'rob@email.com'
-        })
-        self.assertEqual(len(mail.outbox), 1)
-
-    def test_register_redirects_to_registration_complete_page(self):
-        """Test register redirects to registration complate page."""
-        response = self.client.post('/accounts/register/', {
-            'username': 'Rob',
-            'password1': 'Codefellows',
-            'password2': 'Codefellows',
-            'email': 'rob@email.com'
-        }, follow=True)
-        self.assertIn(b'Registration is Compleated', response.content)
 
     def test_register_valid_user_password_gets_302_response(self):
         """Test if valid user with password responds with 302."""
-        response = self.client.post('/accounts/register/', {
+        response = self.client.post(reverse_lazy('registration_register'), {
             'username': 'Rob',
             'password1': 'Codefellows',
             'password2': 'Codefellows',
@@ -151,9 +146,40 @@ class RoutingTests(TestCase):
         })
         self.assertEqual(response.status_code, 302)
 
+    def test_register_redirects_to_registration_complete_page(self):
+        """Test register redirects to registration complate page."""
+        response = self.client.post(reverse_lazy('registration_register'), {
+            'username': 'Rob',
+            'password1': 'Codefellows',
+            'password2': 'Codefellows',
+            'email': 'rob@email.com'
+        }, follow=True)
+        self.assertIn(b'Registration is Compleated', response.content)
+
+    def test_register_valid_user_password_creates_inactive_user(self):
+        """Test if valid user with password creates a new inactive user."""
+        self.client.post(reverse_lazy('registration_register'), {
+            'username': 'Rob',
+            'password1': 'Codefellows',
+            'password2': 'Codefellows',
+            'email': 'rob@email.com'
+        })
+        self.assertEqual(User.objects.count(), 2)
+        self.assertFalse(User.objects.get(username='Rob').is_active)
+
+    def test_register_will_send_email_after_registration(self):
+        """Test registration will send Email after Registartion."""
+        self.client.post(reverse_lazy('registration_register'), {
+            'username': 'Rob',
+            'password1': 'Codefellows',
+            'password2': 'Codefellows',
+            'email': 'rob@email.com'
+        })
+        self.assertEqual(len(mail.outbox), 1)
+
     def test_register_will_send_email_and_link_after_registration(self):
         """Test registration will send Email and link after Registartion."""
-        self.client.post('/accounts/register/', {
+        self.client.post(reverse_lazy('registration_register'), {
             'username': 'Rob',
             'password1': 'Codefellows',
             'password2': 'Codefellows',
@@ -164,7 +190,7 @@ class RoutingTests(TestCase):
     def test_actvation_link_redirects_to_activate_complated_page(self):
         """Test if Acitvation link works."""
         import re
-        self.client.post('/accounts/register/', {
+        self.client.post(reverse_lazy('registration_register'), {
             'username': 'Rob',
             'password1': 'Codefellows',
             'password2': 'Codefellows',
@@ -178,9 +204,9 @@ class RoutingTests(TestCase):
         """Test if users created can log in."""
         import re
         self.client.login(username='Rob', password='Codefellows')
-        response = self.client.get('/')
+        response = self.client.get(reverse_lazy('home'))
         self.assertNotIn(b'Welcome,', response.content)
-        self.client.post('/accounts/register/', {
+        self.client.post(reverse_lazy('registration_register'), {
             'username': 'Rob',
             'password1': 'Codefellows',
             'password2': 'Codefellows',
@@ -189,12 +215,25 @@ class RoutingTests(TestCase):
         activation = re.findall('/accounts/activate/.+/', mail.outbox[0].body)
         self.client.get(activation[0])
         self.client.login(username='Rob', password='Codefellows')
-        response = self.client.get('/')
+        response = self.client.get(reverse_lazy('home'))
         self.assertIn(b'Welcome,', response.content)
+
+    def test_register_with_activation_valid_user_password_activates_user(self):
+        """Test if valid user with password is activated, activates user."""
+        import re
+        self.client.post(reverse_lazy('registration_register'), {
+            'username': 'Rob',
+            'password1': 'Codefellows',
+            'password2': 'Codefellows',
+            'email': 'rob@email.com'
+        })
+        activation = re.findall('/accounts/activate/.+/', mail.outbox[0].body)
+        self.client.get(activation[0])
+        self.assertTrue(User.objects.get(username='Rob').is_active)
 
     def test_register_taken_username_responds_with_200(self):
         """Test register taken responds with 200."""
-        response = self.client.post('/accounts/register/', {
+        response = self.client.post(reverse_lazy('registration_register'), {
             'username': 'bob',
             'password1': 'Codefellows',
             'password2': 'Codefellows',
@@ -204,7 +243,7 @@ class RoutingTests(TestCase):
 
     def test_register_taken_user_name_displays_name_taken(self):
         """Test register taken responds with username taken."""
-        response = self.client.post('/accounts/register/', {
+        response = self.client.post(reverse_lazy('registration_register'), {
             'username': 'bob',
             'password1': 'Codefellows',
             'password2': 'Codefellows',
