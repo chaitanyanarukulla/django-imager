@@ -5,6 +5,10 @@ body {
     padding: 40px 0;
 }
 
+nav {
+    background-color: #96c7ea;
+}
+
 .container.gallery-container {
     background-color: #fff;
     color: #35373a;
@@ -50,8 +54,6 @@ body {
     opacity: 0;
     color: #fff;
     font-size: 26px;
-    font-family: 'Glyphicons Halflings';
-    content: '\e003';
     pointer-events: none;
     z-index: 9000;
     transition: 0.4s;
