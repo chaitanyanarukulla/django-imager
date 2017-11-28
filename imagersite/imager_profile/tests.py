@@ -1,10 +1,9 @@
-"""."""
+"""Tests for the ImagerProfile models."""
 from django.test import TestCase
 from imager_profile.models import ImagerProfile, User
 
 import factory
 import random
-# Create your tests here.
 
 
 class UserFactory(factory.django.DjangoModelFactory):
