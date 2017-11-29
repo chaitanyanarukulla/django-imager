@@ -1,4 +1,4 @@
-"""."""
+"""The main views for the Imager site."""
 from django.shortcuts import render
 
 

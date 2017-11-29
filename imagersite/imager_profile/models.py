@@ -1,11 +1,10 @@
-"""."""
+"""Profile for an User."""
 from django.db import models
 from django.contrib.auth.models import User
 from multiselectfield import MultiSelectField
 from django.dispatch import receiver
 
 
-# Create your models here.
 class ImagerProfile(models.Model):
     """Profile for a user of Imager."""
 

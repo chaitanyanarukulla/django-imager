@@ -1,4 +1,4 @@
-"""Tests for the ImagerProfile models."""
+"""Tests for the Photo and Album models."""
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings

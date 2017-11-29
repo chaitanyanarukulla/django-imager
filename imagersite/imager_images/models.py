@@ -1,12 +1,10 @@
-"""."""
+"""Photo and Album models created by a User."""
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
-
 
 class Photo(models.Model):
-    """."""
+    """Photo uploaded by a User."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='images')
@@ -24,7 +22,7 @@ class Photo(models.Model):
 
 
 class Album(models.Model):
-    """."""
+    """Album of Photos created by the User."""
 
     # objects = models.ModelManager()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
