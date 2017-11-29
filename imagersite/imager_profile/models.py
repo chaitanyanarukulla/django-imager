@@ -38,6 +38,10 @@ class ImagerProfile(models.Model):
         """Get a QuerySet of all active profiles."""
         return ImagerProfile.objects.filter(is_active=True)
 
+    def __str__(self):
+        """The string from of the profile."""
+        return 'Profile: ' + self.user.username
+
 
 @receiver(models.signals.post_save, sender=User)
 def create_profile(sender, **kwargs):

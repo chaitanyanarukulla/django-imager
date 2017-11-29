@@ -3,8 +3,13 @@
 
 {% block content %}
 <div class="tz-gallery">
+    <div class="col-12">
+        <a class="lightbox" href="{{ hero_img_url }}">
+            <img src="{{ hero_img_url }}" alt="{{ hero_img_title }}">
+        </a>
+    </div>
 
-    <div class="row">
+    <!-- <div class="row">
 
         <div class="col-sm-12 col-md-4">
             <a class="lightbox" href="../images/bridge.jpg">
@@ -37,7 +42,7 @@
             </a>
         </div>
 
-    </div>
+    </div> -->
 
 </div>
 {% endblock %}
