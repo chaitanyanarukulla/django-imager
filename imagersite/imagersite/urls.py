@@ -13,7 +13,9 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.conf.urls import url, include
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views
 from imagersite.views import home_view
@@ -25,3 +27,8 @@ urlpatterns = [
     url(r'^logout/$', views.logout, name='logout'),
     url(r'^accounts/', include('registration.backends.hmac.urls'))
 ]
+
+if settings.DEBUG:  # pragma: no cover
+    urlpatterns += static(
+        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+    )

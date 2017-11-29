@@ -5,7 +5,7 @@
 
 **Author**: Megan Flood and Chaitanya Naru
 
-**Version**: 1.2.0
+**Version**: 1.3.0
 
 ## Overview
 A simple image management website using Django.
@@ -82,6 +82,10 @@ Built with Python and Django framework. Tested through Django testing suite.
 
 ## Change Log
 
+11-28-2017 8:35pm - Added Photo and Album models with tests.
+
 11-28-2017 1:35pm - Added registration, login, and logout functionality with tests.
+
 11-21-2017 4:21pm - Added Profile Model for Users with tests.
+
 11-20-2017 12:53pm - Initail scaffolding.

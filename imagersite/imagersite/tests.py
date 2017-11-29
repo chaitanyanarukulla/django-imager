@@ -3,6 +3,7 @@ from django.core import mail
 from django.test import TestCase, RequestFactory
 from django.urls import reverse_lazy
 from imager_profile.models import User
+from imager_profile.tests import UserFactory
 
 
 class MainViewUnitTests(TestCase):
@@ -24,7 +25,7 @@ class RoutingTests(TestCase):
 
     def setUp(self):
         """Set up a user for testing login.."""
-        user = User(username='bob', email='bob@bob.net')
+        user = UserFactory(username='bob', email='bob@bob.net')
         user.set_password('password')
         user.save()
 
