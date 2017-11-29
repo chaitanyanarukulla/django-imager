@@ -9,6 +9,18 @@ nav {
     background-color: #96c7ea;
 }
 
+.card-header {
+    background-color: #96c7ea;
+}
+
+.card-footer {
+    background-color: #96c7ea;
+}
+
+.card-deck .list-group {
+    overflow-y: scroll;
+}
+
 .container.gallery-container {
     background-color: #fff;
     color: #35373a;

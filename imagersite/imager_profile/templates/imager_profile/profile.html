@@ -1,0 +1,96 @@
+{% extends 'imagersite/base.html' %}
+
+{% block content %}
+<div>
+    <div class="row mb-3 mx-0">
+
+    <div class="card col-4 mr-3 px-0">
+        <div class="card-body">
+            <h2 class="card-title">{{ username }}</h2>
+            <h5 class="card-subtitle mb-2 text-muted">{{ camera }}</h3>
+            <p class="card-text">{{ bio }}</p>
+        </div>
+        <div class="card-footer pb-0">
+            <p>
+                Fee: {% if fee %}
+                    ${{ fee }}
+                {% else %}
+                    Free
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+<!-- other user's profile -->
+<div class="card-deck col-8 pr-0">
+    <div class="card ">
+        <div class="card-body">
+            <h4 class="card-title mb-0">Albums</h3>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% if albums %}
+                {% for album in albums %}
+                    <li class="list-group-item"><a class="card-link" href="">{{ album }}</a></li>
+                {% endfor %}
+            {% else %}
+                <li class="list-group-item">None</li>
+            {% endif %}
+        </ul>
+    </div>
+
+<!-- user's profile -->
+    <div class="card mr-0">
+        <div class="card-body">
+            <h4 class="card-title mb-0">Photos</h3>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% if photos %}
+                {% for photo in photos %}
+                    <li class="list-group-item"><a class="card-link" href="">{{ photo }}</a></li>
+                {% endfor %}
+            {% else %}
+                <li class="list-group-item">None</li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+</div>
+
+    <div class="card col-6 px-0 ml-0 mr-3 float-left">
+        <p class="card-header">Contact:</p>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Email: {{ email }}</li>
+            <li class="list-group-item">Website: <a class="card-link" href="{{ website }}">{{ website }}</a></li>
+            <li class="list-group-item">Phone-number: {{ phone }}</li>
+            <li class="list-group-item">Location: {{ location }}</li>
+        </ul>
+    </div>
+
+    <div class="card px-0">
+
+        <p class="card-header">Services:</p>
+        <ul class="list-group list-group-flush">
+            {% if services %}
+                {% for service in services %}
+                    <li class="list-group-item">{{ service }}</li>
+                {% endfor %}
+            {% else %}
+                <li class="list-group-item">None</li>
+            {% endif %}
+        </ul>
+
+        <p class="card-header" >Photo-styles:</p>
+        <ul class="list-group list-group-flush">
+            {% if photostyles %}
+                {% for photostyle in photostyles %}
+                    <li class="list-group-item">{{ photostyle }}</li>
+                {% endfor %}
+            {% else %}
+                <li class="list-group-item">None</li>
+            {% endif %}
+        </ul>
+
+    </div>
+
+</div>
+{% endblock %}
