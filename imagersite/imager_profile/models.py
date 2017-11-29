@@ -40,9 +40,9 @@ class ImagerProfile(models.Model):
         return ImagerProfile.objects.filter(is_active=True)
 
 
-# @receiver(models.post_save, sender=User)
-# def create_profile(sender, **kwargs):
-#     """Create a new profile when a User is created."""
-#     if kwargs['created']:
-#         profile = ImagerProfile(user=kwargs['instance'])
-#         profile.save()
+@receiver(models.signals.post_save, sender=User)
+def create_profile(sender, **kwargs):
+    """Create a new profile when a User is created."""
+    if kwargs['created']:
+        profile = ImagerProfile(user=kwargs['instance'])
+        profile.save()
