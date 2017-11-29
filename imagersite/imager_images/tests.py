@@ -4,24 +4,12 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from imager_images.models import Photo, Album
 from imager_profile.models import User
+from imager_profile.tests import UserFactory
 
 from datetime import datetime
 import factory
 import os
 import random
-
-
-class UserFactory(factory.django.DjangoModelFactory):
-    """Factory for fake User."""
-
-    class Meta:
-        """Meta."""
-
-        model = User
-
-    username = factory.Sequence(lambda n:
-                                '{}{}'.format(factory.Faker('first_name'), n))
-    email = factory.Faker('email')
 
 
 class PhotoFactory(factory.django.DjangoModelFactory):
