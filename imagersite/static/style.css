@@ -130,6 +130,7 @@ nav {
 
 .tz-gallery-grid img {
     border-radius: 4px 4px 0 0;
+    max-width:100%;
 }
 
 .tz-gallery-grid .caption{
