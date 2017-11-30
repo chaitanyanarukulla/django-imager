@@ -1,5 +1,4 @@
 {% extends 'imagersite/base.html' %}
-{% load modulo_tag %}
 
 
 {% block content %}
@@ -7,20 +6,16 @@
 
 <div class="tz-gallery-grid">
 <h2>Albums</h2>
-    {% for album in albums %}
 
-    {% if forloop.counter0 | modulo:6 == 0  %}
     <div class="row">
-    {% endif %}
-        <div class="col-sm-6 col-md-4">
-            <a href="{{}}">
+    {% for album in albums %}
+        <div class="col-sm-6 col-md-3">
+            <a href="">
                 <img src="{{album.thumbnail}}" alt="{{album.title}}">
             </a>
         </div>
-    {% if forloop.counter0 | modulo:6 == 5 or forloop.last  %}
-    </div>
-    {% endif %}
     {% endfor %}
+    </div>
 
 </div>
 
@@ -28,28 +23,15 @@
 <h2>Photos</h2>
 
 
-    {% for photo in photos %}
-    {% if forloop.counter0 | modulo:6 == 0  %}
-
     <div class="row">
-    {% endif %}
-            <div class=" {% if forloop.counter0 %6 == 0 or forloop.counter0 %6==3 %}
-                col-sm-12
-                {% else %}
-                col-sm-6
-                {% endif %}
-                {% if forloop.counter0 %6==3 %}
-                col-md-8
-                {% else %}
-                col-md-4
-                {% endif %}">
+    {% for photo in photos %}
+
+{% cycle '<div class="col-sm-12 col-md-4">' '<div class="col-sm-6 col-md-4">' '<div class="col-sm-6 col-md-4">' '<div class="col-sm-12 col-md-8">' '<div class="col-sm-6 col-md-4">' '<div class="col-sm-6 col-md-4">' %}
                 <a class="lightbox fa fa-search" href="{{photo.image}}">
                     <img src="{{photo.tumbnail}}" alt="{{photo.title}}">
                 </a>
             </div>
-    {% if forloop.counter0 | modulo:6 == 5 or forloop.last  %}
-    </div>
-    {% endif %}
     {% endfor %}
+    </div>
 </div>
 {% endblock %}
