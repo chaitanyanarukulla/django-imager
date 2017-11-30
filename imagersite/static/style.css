@@ -93,6 +93,12 @@ nav {
     opacity: 1;
 }
 
+
+.tz-gallery .hero-image {
+    height: 40vw;
+    overflow-y: hidden;
+}
+
 .baguetteBox-button {
     background-color: transparent !important;
 }

@@ -36,8 +36,14 @@
                 <a class="nav-link" href="{% url 'logout' %}">Logout</a>
             </li>
         </ul>
-            <span class="navbar-text">
+            <span class="navbar-text d-none d-lg-inline pr-3">
                 Welcome, {{request.user.username}}
+            </span>
+            <span class="navbar-nav">
+            <a class="nav-link" href="{% url 'profile' username='' %}">Profile</a>
+            </span>
+            <span class="navbar-nav">
+            <a class="nav-link" href="{% url 'profile' username='' %}">Library</a>
             </span>
             {% else %}
             <li class="nav-item">
@@ -50,10 +56,6 @@
             {% endif %}
       </div>
     </nav>
-
-    <h1>Imager</h1>
-
-    <p class="page-description text-center">Post some pictures</p>
 
     {% block content %}{% endblock %}
 

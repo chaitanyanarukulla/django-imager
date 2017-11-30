@@ -6,8 +6,8 @@ from imager_images.models import Photo
 
 def home_view(request):
     """Get the Home page."""
-    if Photo.objects.count():
-        image = Photo.objects.order_by('?').first()
+    if Photo.objects.filter(published='PUBLIC').count():
+        image = Photo.objects.filter(published='PUBLIC').order_by('?').first()
         image_url = image.image.url
         image_title = image.title
     else:
