@@ -100,13 +100,13 @@ class RoutingTests(TestCase):
         response = self.client.get(reverse_lazy('home'))
         self.assertIn(b'Welcome,', response.content)
 
-    def test_login_post_valid_login_redirects_to_home_page(self):
+    def test_login_post_valid_login_redirects_to_profile_page(self):
         """Test that login with valid login redirects to home page."""
         response = self.client.post(reverse_lazy('login'), {
             'username': 'bob',
             'password': 'password'
         }, follow=True)
-        self.assertEqual(response.redirect_chain[0][0], reverse_lazy('home'))
+        self.assertEqual(response.redirect_chain[0][0], '/profile/')
 
     def test_logout_get_has_200_response(self):
         """Test that logout get route has a 200 response code."""

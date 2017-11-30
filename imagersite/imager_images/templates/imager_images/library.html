@@ -1,0 +1,33 @@
+{% extends 'imagersite/base.html' %}
+
+
+{% block content %}
+<h1>Library</h1>
+
+<div class="tz-gallery">
+
+    {% for photo in photos %}
+    {% if forloop.counter0 % 6 == 0  %}
+
+    <div class="row">
+    {% endif %}
+            <div class=" {% if forloop.counter0 %6 == 0 or forloop.counter0 %6==3 %}
+                col-sm-12
+                {% else %}
+                col-sm-6
+                {% endif %}
+                {% if forloop.counter0 %6==3 %}
+                col-md-8
+                {% else %}
+                col-md-4
+                {% endif %}">
+                <a class="lightbox fa fa-search" href="{{image}}">
+                    <img src="{{image.tumbnail}}" alt="{{title}}">
+                </a>
+            </div>
+            {% if forloop.counter0 % 6 == 5 or forloop.last  %}
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}
