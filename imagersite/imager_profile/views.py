@@ -15,7 +15,7 @@ def profile_view(request, username=None):
         'phone': '123-4567',
         'services': ['weddings', 'babies'],
         'photostyles': ['night'],
-        'albums': [],
+        'albums': ['album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album', 'album'],
         'photos': [],
     }
     return render(request, 'imager_profile/profile.html', context)

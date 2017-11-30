@@ -9,6 +9,10 @@ nav {
     background-color: #96c7ea;
 }
 
+.profile-row-1 {
+    height: 33vw;
+}
+
 .card-header {
     background-color: #96c7ea;
 }
@@ -17,7 +21,7 @@ nav {
     background-color: #96c7ea;
 }
 
-.card-deck .list-group {
+.scrolling {
     overflow-y: scroll;
 }
 

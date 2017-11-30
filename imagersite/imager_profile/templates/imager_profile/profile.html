@@ -1,14 +1,16 @@
 {% extends 'imagersite/base.html' %}
 
 {% block content %}
-<div>
-    <div class="row mb-3 mx-0">
+<div class="container">
+    <div class="profile-row-1 row mb-3 mx-0">
 
     <div class="card col-4 mr-3 px-0">
-        <div class="card-body">
+        <div class="card-body pb-0">
             <h2 class="card-title">{{ username }}</h2>
             <h5 class="card-subtitle mb-2 text-muted">{{ camera }}</h3>
-            <p class="card-text">{{ bio }}</p>
+        </div>
+        <div class="card-text scrolling p-3">
+            <p>{{ bio }}</p>
         </div>
         <div class="card-footer pb-0">
             <p>
@@ -27,7 +29,7 @@
         <div class="card-body">
             <h4 class="card-title mb-0">Albums</h3>
         </div>
-        <ul class="list-group list-group-flush">
+        <ul class="scrolling list-group list-group-flush">
             {% if albums %}
                 {% for album in albums %}
                     <li class="list-group-item"><a class="card-link" href="">{{ album }}</a></li>
@@ -43,7 +45,7 @@
         <div class="card-body">
             <h4 class="card-title mb-0">Photos</h3>
         </div>
-        <ul class="list-group list-group-flush">
+        <ul class="scrolling list-group list-group-flush">
             {% if photos %}
                 {% for photo in photos %}
                     <li class="list-group-item"><a class="card-link" href="">{{ photo }}</a></li>
