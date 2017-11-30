@@ -1,22 +1,23 @@
 {% extends 'imagersite/base.html' %}
+{% load modulo_tag %}
 
 
 {% block content %}
 <h1>Library</h1>
 
 <div class="tz-gallery-grid">
-
+<h2>Albums</h2>
     {% for album in albums %}
 
-    {% if forloop.counter0 % 6 == 0  %}
+    {% if forloop.counter0 | modulo:6 == 0  %}
     <div class="row">
     {% endif %}
         <div class="col-sm-6 col-md-4">
-            <a class="lightbox" href="{{image}}">
-                <img src="{{image.title}}" alt="{{title}}">
+            <a href="{{}}">
+                <img src="{{album.thumbnail}}" alt="{{album.title}}">
             </a>
         </div>
-    {% if forloop.counter0 % 6 == 5 or forloop.last  %}
+    {% if forloop.counter0 | modulo:6 == 5 or forloop.last  %}
     </div>
     {% endif %}
     {% endfor %}
@@ -24,10 +25,11 @@
 </div>
 
 <div class="tz-gallery">
+<h2>Photos</h2>
 
 
     {% for photo in photos %}
-    {% if forloop.counter0 % 6 == 0  %}
+    {% if forloop.counter0 | modulo:6 == 0  %}
 
     <div class="row">
     {% endif %}
@@ -41,11 +43,11 @@
                 {% else %}
                 col-md-4
                 {% endif %}">
-                <a class="lightbox fa fa-search" href="{{image}}">
-                    <img src="{{image.tumbnail}}" alt="{{title}}">
+                <a class="lightbox fa fa-search" href="{{photo.image}}">
+                    <img src="{{photo.tumbnail}}" alt="{{photo.title}}">
                 </a>
             </div>
-    {% if forloop.counter0 % 6 == 5 or forloop.last  %}
+    {% if forloop.counter0 | modulo:6 == 5 or forloop.last  %}
     </div>
     {% endif %}
     {% endfor %}
