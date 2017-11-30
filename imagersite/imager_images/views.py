@@ -15,11 +15,12 @@ def library_view(request):
     photos_data = []
     for photo in photos:
         file, exe = os.path.splitext(photo.image.path)
-        im = Image.open(photo.image.path)
-        size = min(im.size)
-        im = im.crop((0, 0, size, size))
-        im.thumbnail((250, 250))
-        im.save(file + ".thumbnail", "JPEG")
+        if not os.path.isfile(file + ".thumbnail"):
+            im = Image.open(photo.image.path)
+            size = min(im.size)
+            im = im.crop((0, 0, size, size))
+            im.thumbnail((250, 250))
+            im.save(file + ".thumbnail", "JPEG")
         photo_data = {}
         url, exe = os.path.splitext(photo.image.url)
         photo_data['image'] = photo.image.url
@@ -34,11 +35,12 @@ def library_view(request):
             album_data['thumbnail'] = settings.STATIC_URL + 'default_cover.thumbnail'
         else:
             file, exe = os.path.splitext(album.cover.image.path)
-            im = Image.open(album.cover.image.path)
-            size = min(im.size)
-            im = im.crop((0, 0, size, size))
-            im.thumbnail((250, 250))
-            im.save(file + ".thumbnail", "JPEG")
+            if not os.path.isfile(file + ".thumbnail"):
+                im = Image.open(album.cover.image.path)
+                size = min(im.size)
+                im = im.crop((0, 0, size, size))
+                im.thumbnail((250, 250))
+                im.save(file + ".thumbnail", "JPEG")
             url, exe = os.path.splitext(album.cover.image.url)
             album_data['thumbnail'] = url + ".thumbnail"
         album_data['title'] = album.title
