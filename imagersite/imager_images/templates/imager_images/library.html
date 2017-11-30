@@ -26,9 +26,9 @@
     <div class="row">
     {% for photo in photos %}
 
-{% cycle '<div class="col-sm-12 col-md-4">' '<div class="col-sm-6 col-md-4">' '<div class="col-sm-6 col-md-4">' '<div class="col-sm-12 col-md-8">' '<div class="col-sm-6 col-md-4">' '<div class="col-sm-6 col-md-4">' %}
-                <a class="lightbox fa fa-search" href="{{photo.image}}">
-                    <img src="{{photo.tumbnail}}" alt="{{photo.title}}">
+  <div class="col-sm-6 col-md-3">
+                  <a class="lightbox fa fa-search" href="{{photo.image}}">
+                    <img src="{{photo.thumbnail}}" alt="{{photo.title}}">
                 </a>
             </div>
     {% endfor %}
