@@ -5,14 +5,19 @@
 <h1>Library</h1>
 
 <div class="tz-gallery-grid">
-<h2>Albums</h2>
+<h2 class="page-description" >Albums</h2>
 
     <div class="row">
     {% for album in albums %}
-        <div class="col-sm-6 col-md-3">
-            <a href="">
-                <img src="{{album.thumbnail}}" alt="{{album.title}}">
-            </a>
+        <div class="col-sm-6 col-md-4">
+            <div class="thumbnail">
+                <a href="">
+                    <img src="{{album.thumbnail}}" alt="{{album.title}}">
+                </a>
+                <div class="caption">
+                    <h3>{{album.title}}</h3>
+                </div>
+            </div>
         </div>
     {% endfor %}
     </div>
@@ -20,7 +25,7 @@
 </div>
 
 <div class="tz-gallery">
-<h2>Photos</h2>
+<h2 class="page-description" >Photos</h2>
 
 
     <div class="row">
