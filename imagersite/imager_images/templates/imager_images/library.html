@@ -4,7 +4,27 @@
 {% block content %}
 <h1>Library</h1>
 
+<div class="tz-gallery-grid">
+
+    {% for album in albums %}
+
+    {% if forloop.counter0 % 6 == 0  %}
+    <div class="row">
+    {% endif %}
+        <div class="col-sm-6 col-md-4">
+            <a class="lightbox" href="{{image}}">
+                <img src="{{image.title}}" alt="{{title}}">
+            </a>
+        </div>
+    {% if forloop.counter0 % 6 == 5 or forloop.last  %}
+    </div>
+    {% endif %}
+    {% endfor %}
+
+</div>
+
 <div class="tz-gallery">
+
 
     {% for photo in photos %}
     {% if forloop.counter0 % 6 == 0  %}
@@ -25,7 +45,7 @@
                     <img src="{{image.tumbnail}}" alt="{{title}}">
                 </a>
             </div>
-            {% if forloop.counter0 % 6 == 5 or forloop.last  %}
+    {% if forloop.counter0 % 6 == 5 or forloop.last  %}
     </div>
     {% endif %}
     {% endfor %}

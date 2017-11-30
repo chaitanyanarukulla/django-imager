@@ -108,3 +108,25 @@ nav {
         padding: 0;
     }
 }
+
+
+.tz-gallery-grid {
+    padding: 40px;
+}
+
+.tz-gallery-grid .lightbox img {
+    width: 100%;
+    margin-bottom: 30px;
+    transition: 0.2s ease-in-out;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+}
+
+
+.tz-gallery-grid .lightbox img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+.tz-gallery-grid img {
+    border-radius: 4px;
+}
