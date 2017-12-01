@@ -6,7 +6,7 @@
     <div id="galleria">
         {% for album in albums %}
             {% if album.cover %}
-                {% thumbnail album.cover.image "400x400" as im %}
+                {% thumbnail album.cover.image "100x100" as im %}
                 <a href="{{ album.cover.image.url }}">
                     <img 
                         src="{{ im.url }}",
