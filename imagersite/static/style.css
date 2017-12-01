@@ -3,6 +3,7 @@ body {
     min-height: 100vh;
     font: normal 16px sans-serif;
     padding: 40px 0;
+    font-family: georgia,serif;
 }
 
 nav {
@@ -35,7 +36,14 @@ nav {
 .gallery-container h1 {
     text-align: center;
     margin-top: 50px;
-    font-family: 'Droid Sans', sans-serif;
+    font-family: 'Cinzel Decorative', cursive;
+    font-weight: bold;
+}
+
+.gallery-container h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-family: 'Cinzel Decorative', cursive;
     font-weight: bold;
 }
 
@@ -148,4 +156,111 @@ nav {
     font-size: 12px;
     color: #7b7d7d;
     margin: 0;
+}
+
+#galleria {
+    width: 100%;
+    height: 40vw;
+}
+
+.galleria-theme-classic {
+    background: #fff;
+}
+
+.galleria-thumbnails-list {
+    background: #96c7ea;
+    padding: 5px;
+}
+
+.galleria-theme-classic .galleria-info-link {
+    background-color: transparent;
+}
+
+.galleria-theme-classic .galleria-thumb-nav-left, .galleria-theme-classic .galleria-thumb-nav-right, .galleria-theme-classic .galleria-info-link, .galleria-theme-classic .galleria-info-close, .galleria-theme-classic .galleria-image-nav-left, .galleria-theme-classic .galleria-image-nav-right {
+    background-image: url(classic-map.png);
+}
+
+.galleria-theme-classic .galleria-info-text {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.galleria-theme-classic .galleria-info-title {
+    font-family: 'Cinzel Decorative', cursive;
+    color: #000;
+}
+
+.galleria-theme-classic .galleria-info-description {
+    color: #7b7d7d;
+}
+
+
+.input-group input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    /*width: 1%;*/
+    margin-bottom: 0;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-image: none;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0 .25rem .25rem 0;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+.login-button {
+    background-color: #96c7ea;
+    border-color: transparent;
+    color: #000;
+}
+
+.register-form {
+    display: block;
+}
+
+.register-form ul {
+    list-style: none;
+}
+
+form p {
+    display: block;
+}
+
+.register-form input {
+    width: 80%;
+    display: inline-block;
+}
+
+.helptext {
+    display: none;
+}
+
+
+.register-form label {
+    width: 20%;
+    display: inline-block;
+    float: left;
+    border-radius: .25rem 0 0 .25rem;
+    padding: .375rem .75rem;
+    margin-bottom: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    text-align: right;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-right: 0;
+    white-space: nowrap;
 }

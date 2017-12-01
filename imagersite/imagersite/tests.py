@@ -47,7 +47,7 @@ class RoutingTests(TestCase):
     def test_login_get_login_form(self):
         """Test that login get route has a login form."""
         response = self.client.get(reverse_lazy('login'))
-        self.assertIn(b'<h2 class="title">Login</h2>', response.content)
+        self.assertIn(b'<h1 class="title">Login</h1>', response.content)
 
     def test_login_post_invalid_user_has_200_response(self):
         """Test that login with invalid username has a 200 response code."""
@@ -135,7 +135,7 @@ class RoutingTests(TestCase):
     def test_register_get_has_register_form(self):
         """Test that register get route has registration form."""
         response = self.client.get(reverse_lazy('registration_register'))
-        self.assertIn(b'<h2 class="title">Register</h2>', response.content)
+        self.assertIn(b'<h1 class="title">Register</h1>', response.content)
 
     def test_register_valid_user_password_gets_302_response(self):
         """Test if valid user with password responds with 302."""
@@ -155,7 +155,7 @@ class RoutingTests(TestCase):
             'password2': 'Codefellows',
             'email': 'rob@email.com'
         }, follow=True)
-        self.assertIn(b'Registration is Compleated', response.content)
+        self.assertIn(b'Registration is Completed', response.content)
 
     def test_register_valid_user_password_creates_inactive_user(self):
         """Test if valid user with password creates a new inactive user."""
@@ -199,7 +199,7 @@ class RoutingTests(TestCase):
         })
         activation = re.findall('/accounts/activate/.+/', mail.outbox[0].body)
         response = self.client.get(activation[0], follow=True)
-        self.assertIn(b'Activation is Compleated', response.content)
+        self.assertIn(b'Activation is Completed', response.content)
 
     def test_register_allows_login_to_new_users(self):
         """Test if users created can log in."""

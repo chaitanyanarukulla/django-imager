@@ -1,13 +1,14 @@
 """Photo and Album models created by a User."""
 from django.db import models
 from django.contrib.auth.models import User
+from sorl.thumbnail import ImageField
 
 
 class Photo(models.Model):
     """Photo uploaded by a User."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='images')
+    image = ImageField(upload_to='images')
     title = models.CharField(max_length=180, blank=True, default='Untitled')
     description = models.TextField(blank=True, null=True)
     date_uploaded = models.DateTimeField(auto_now_add=True)
