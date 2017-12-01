@@ -10,6 +10,11 @@ nav {
     background-color: #96c7ea;
 }
 
+.navbar-brand {
+    font-family: 'Cinzel Decorative', cursive;
+    font-weight: bolder;
+}
+
 .profile-row-1 {
     height: 33vw;
 }
