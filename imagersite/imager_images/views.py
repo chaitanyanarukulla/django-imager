@@ -10,14 +10,10 @@ def library_view(request):
     if user == '':
         return redirect('home')
 
-    photos = Photo.objects.filter(user__username=user)
-
-    albums = Album.objects.filter(user__username=user)
-
     context = {
-        'albums': albums,
+        'albums': Album.objects.filter(user__username=user),
         'default_cover': settings.STATIC_URL + 'default_cover.thumbnail',
-        'photos': photos
+        'photos': Photo.objects.filter(user__username=user)
     }
     return render(request, 'imager_images/library.html', context)
 
@@ -30,3 +26,17 @@ def photo_gallery_view(request):
 
     context = {'photos': Photo.objects.filter(user__username=user)}
     return render(request, 'imager_images/photo_gallery.html', context)
+
+
+def album_gallery_view(request):
+    """Album gallery of all a user's albums."""
+    user = request.user.get_username()
+    if user == '':
+        return redirect('home')
+
+    context = {
+        'albums': Album.objects.filter(user__username=user),
+        'default_cover': settings.STATIC_URL + 'default_cover.png',
+        'default_cover_thumb': settings.STATIC_URL + 'default_cover.thumbnail',
+    }
+    return render(request, 'imager_images/album_gallery.html', context)

@@ -6,7 +6,7 @@
 <h1>Library</h1>
 
 <div class="tz-gallery-grid">
-<h2>Albums</h2>
+<a class="text-dark" href="{% url 'album_gallery' %}"><h2>Albums</h2></a>
 
     <div class="row">
     {% for album in albums %}
@@ -32,7 +32,7 @@
 </div>
 
 <div class="tz-gallery">
-<h2>Photos</h2>
+<a class="text-dark" href="{% url 'photo_gallery' %}"><h2>Photos</h2></a>
 
 
     <div class="row">
