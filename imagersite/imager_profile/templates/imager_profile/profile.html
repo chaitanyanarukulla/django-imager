@@ -6,7 +6,7 @@
 
         <div class="card col-4 mr-3 px-0">
             <div class="card-body pb-0">
-                <h2 class="card-title">{{ username }}</h2>
+                <h1 class="card-title mt-0">{{ username }}</h1>
                 <h5 class="card-subtitle mb-2 text-muted">{% if camera %}
                     {{ camera }}
                     {% else %}
@@ -30,7 +30,7 @@
         <div class="card-deck col-8 pr-0">
             <div class="card ">
                 <div class="card-body">
-                    <h4 class="card-title">Albums</h3>
+                    <h2 class="card-title">Albums</h2>
                     {% if owner %}
                     <p class="card-text text-muted text-center">
                         <span class="col-6">Public: {{ album_public_count }}</span>
@@ -41,7 +41,7 @@
                 <ul class="scrolling list-group list-group-flush">
                     {% if albums %}
                         {% for album in albums %}
-                            <li class="list-group-item"><a class="card-link" href="">{{ album }}</a></li>
+                            <a href="#" class="list-group-item list-group-item-action">{{ album }}</a>
                         {% endfor %}
                     {% else %}
                         <li class="list-group-item">None</li>
@@ -51,7 +51,7 @@
 
             <div class="card mr-0">
                 <div class="card-body">
-                    <h4 class="card-title">Photos</h3>
+                    <h2 class="card-title">Photos</h2>
                     {% if owner %}
                     <p class="card-text text-muted text-center">
                         <span class="col-6">Public: {{ photo_public_count }}</span>
@@ -62,7 +62,7 @@
                 <ul class="scrolling list-group list-group-flush">
                     {% if photos %}
                         {% for photo in photos %}
-                            <li class="list-group-item"><a class="card-link" href="">{{ photo }}</a></li>
+                            <a href="#" class="list-group-item list-group-item-action">{{ photo }}</a>
                         {% endfor %}
                     {% else %}
                         <li class="list-group-item">None</li>
@@ -77,11 +77,12 @@
             <p class="card-header">Contact:</p>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">Email: {{ email }}</li>
-                <li class="list-group-item">Website: {% if website %}
-                    <a class="card-link" href="{{ website }}">{{ website }}</a>
-                    {% else %}
-                    None
-                {% endif %}</li>
+                
+                {% if website %}
+                <a href="{{ website }}" class="list-group-item list-group-item-action">Website: {{ website }}</a>
+                {% else %}
+                <li class="list-group-item">Website: None</li>
+                {% endif %}
                 <li class="list-group-item">Phone-number: {{ phone }}</li>
                 <li class="list-group-item">Location: {{ location }}</li>
             </ul>

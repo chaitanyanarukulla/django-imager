@@ -1,18 +1,25 @@
 {% extends 'imagersite/base.html' %}
+{% load thumbnail %}
 
 
 {% block content %}
 <h1>Library</h1>
 
 <div class="tz-gallery-grid">
-<h2 class="page-description" >Albums</h2>
+<a class="text-dark" href="{% url 'album_gallery' %}"><h2>Albums</h2></a>
 
     <div class="row">
     {% for album in albums %}
         <div class="col-sm-6 col-md-3">
             <div class="thumbnail">
                 <a href="">
-                    <img src="{{album.thumbnail}}" alt="{{album.title}}">
+                    {% if album.cover %}
+                    {% thumbnail album.cover.image "250x250" crop="center" as im %}
+                        <img src="{{ im.url }}" alt="{{ album.title }}">
+                    {% endthumbnail %}
+                    {% else %}
+                        <img src="{{ default_cover }}" alt="{{ album.title }}">
+                    {% endif %}
                 </a>
                 <div class="caption">
                     <h3>{{album.title}}</h3>
@@ -25,18 +32,20 @@
 </div>
 
 <div class="tz-gallery">
-<h2 class="page-description" >Photos</h2>
+<a class="text-dark" href="{% url 'photo_gallery' %}"><h2>Photos</h2></a>
 
 
     <div class="row">
     {% for photo in photos %}
 
-  <div class="col-sm-6 col-md-3">
-                  <a class="lightbox fa fa-search" href="{{photo.image}}">
-                    <img src="{{photo.thumbnail}}" alt="{{photo.title}}">
+            <div class="col-sm-6 col-md-3">
+                <a class="lightbox fa fa-search" href="{{ photo.image.url }}">
+                    {% thumbnail photo.image "250x250" crop="center" as im %}
+                        <img src="{{ im.url }}" alt="{{photo.title}}">
+                    {% endthumbnail %}
                 </a>
             </div>
     {% endfor %}
     </div>
 </div>
-{% endblock %}
+{% endblock content %}
