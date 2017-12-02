@@ -66,6 +66,11 @@ class ProfileTests(TestCase):
             fillout_profile(user.profile)
             user.profile.save()
 
+    def test_profile_to_string_is_correct(self):
+        """Test that the __str__ method returns the profile username."""
+        one_profile = ImagerProfile.objects.get(user__username='bob')
+        self.assertEqual(str(one_profile), 'Profile: bob')
+
     def test_profile_is_created_when_user_is_saved(self):
         """Test that a profile is created automatically when a user is."""
         self.assertEquals(ImagerProfile.objects.count(), 12)
