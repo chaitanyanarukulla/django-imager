@@ -35,14 +35,15 @@ class MainViewUnitTests(TestCase):
         response = home_view(request.get(''))
         self.assertIn(b'tz-gallery', response.content)
 
-    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test_media_for_home'))
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                       'test_media_for_home'))
     def test_home_view_returns_page_with_photo_from_db(self):
         """Test that the home_view function returns photo from db."""
         from imagersite.views import home_view
-        user=UserFactory()
+        user = UserFactory()
         user.set_password('password')
         user.save()
-        photo=PhotoFactory(user=user, title='test', published='PUBLIC')
+        photo = PhotoFactory(user=user, title='test', published='PUBLIC')
         photo.save()
         request = RequestFactory()
         response = home_view(request.get(''))

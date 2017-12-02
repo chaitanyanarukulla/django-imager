@@ -2,7 +2,6 @@
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from django.test import TestCase, RequestFactory
-from django.urls import reverse_lazy
 from faker import Faker
 from imager_profile.models import ImagerProfile, User
 
@@ -161,7 +160,7 @@ class ProfileViewUnitTests(TestCase):
         user.profile.save()
 
     def test_profile_view_with_user_name_gets_user_profile(self):
-        """Test that the profile_view function returns a page with user profile."""
+        """Test that the p_view function returns a page with user profile."""
         from imager_profile.views import profile_view
         request = self.request.get('')
         request.user = AnonymousUser()
@@ -258,7 +257,8 @@ class ProfileRoutingTests(TestCase):
         """Test that profile route has a given user loggedin."""
         self.client.login(username='bob', password='password')
         response = self.client.get('/profile/rob')
-        self.assertIn(b'I photograph things all the time like bob.', response.content)
+        self.assertIn(b'I photograph things all the time like bob.',
+                      response.content)
 
     def test_profile_route_has_404_response_for_invalid_user(self):
         """Test profile route has 404 response for invalid user."""
@@ -274,4 +274,3 @@ class ProfileRoutingTests(TestCase):
         """Test profile route has 302 response for not loggedin no user."""
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 302)
-
