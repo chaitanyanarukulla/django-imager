@@ -23,25 +23,24 @@ def profile_view(request, username=None):
 
     context = {
         'owner': owner,
+        'profile': profile,
 
-        'username': profile.user.username,
-        'bio': profile.bio,
-        'camera': profile.get_camera_display(),
-        'email': profile.user.email,
-        'website': profile.website,
+        # 'username': profile.user.username,
+        # 'bio': profile.bio,
+        # 'camera': profile.get_camera_display(),
+        # 'email': profile.user.email,
+        # 'website': profile.website,
         'fee': "{:,.2f}".format(profile.fee) if profile.fee else 0,
-        'location': profile.location,
-        'phone': profile.phone,
-        'services': profile.get_services_list(),
-        'photostyles': profile.get_photostyles_list(),
+        # 'location': profile.location,
+        # 'phone': profile.phone,
+        # 'services': profile.get_services_list(),
+        # 'photostyles': profile.get_photostyles_list(),
 
-        'albums': [album.title for album in albums.iterator()],
-        'album_ids': [album.id for album in albums.iterator()],
+        'albums': albums,
         'album_private_count': albums.filter(published='PRIVATE').count(),
         'album_public_count': albums.filter(published='PUBLIC').count(),
 
-        'photos': [photo.title for photo in photos.iterator()],
-        'photos_ids': [photo.id for photo in photos.iterator()],
+        'photos': photos,
         'photo_private_count': photos.filter(published='PRIVATE').count(),
         'photo_public_count': photos.filter(published='PUBLIC').count()
     }

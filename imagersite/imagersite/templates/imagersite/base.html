@@ -33,6 +33,12 @@
           <li class="nav-item active">
             <a class="nav-link" href="{% url 'home' %}">Home</a>
           </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'photo_gallery' %}">Photos</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'album_gallery' %}">Albums</a>
+          </li>
             {% if request.user.is_authenticated %}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'logout' %}">Logout</a>

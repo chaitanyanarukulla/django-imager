@@ -12,9 +12,10 @@
                         src="{{ im.url }}",
                         data-big="{{ album.cover.image.url }}"
                         data-title="{{ album.title }}"
+                        data-description="<span class='gal-user'>Posted by {{ album.user.username }}</span>
                         {% if album.description %}
-                            data-description="{{ album.description }}"
-                        {% endif %}
+                        <br>{{ album.description }}
+                        {% endif %}"
                         longdesc="{% url 'home' %}"
                     >
                 </a>

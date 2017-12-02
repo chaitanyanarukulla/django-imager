@@ -1,0 +1,49 @@
+{% extends 'imagersite/base.html' %}
+{% load thumbnail %}
+
+
+{% block content %}
+<h1>{{ album.title }}</h1>
+
+<p class="page-description text-center">Posted by {{ album.user.username }}</p>
+
+<div class="tz-gallery row">
+    <div class="col-6 album-detail mr-2">
+        {% if album.cover %}
+        <a class="lightbox fa fa-search" href="{{ album.cover.image.url }}">
+            <img src="{{ album.cover.image.url }}" alt="{{ album.title }}">
+        </a>{% else %}
+        <img src="{{ default_cover }}" alt="{{ album.title }}">
+    {% endif %}
+    </div>
+    <div class="card col px-0">
+            <p class="card-header">Information</p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Photos: {{ album.photos.count }}</li>
+                <li class="list-group-item">Date uploaded: {{ album.date_uploaded }}</li>
+                <li class="list-group-item">Date modified: {{ album.date_modified }}</li>
+                <li class="list-group-item">Published status: {{ album.get_published_display }}</li>
+                {% if album.date_published %}
+                <li class="list-group-item">Date published: {{ album.date_published }}</li>
+                {% endif %}
+            </ul>
+        </div>
+</div>
+
+        <p class="page-description text-center mt-0">{{ album.description }}</p>
+         <div class="tz-gallery">
+
+<div class="row">
+    {% for photo in album.photos.all %}
+
+            <div class="col-sm-6 col-md-3">
+                <a class="lightbox fa fa-search" href="{{ photo.image.url }}">
+                    {% thumbnail photo.image "250x250" crop="center" as im %}
+                        <img src="{{ im.url }}" alt="{{photo.title}}">
+                    {% endthumbnail %}
+                </a>
+            </div>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}

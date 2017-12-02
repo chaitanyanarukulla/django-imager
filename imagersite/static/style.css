@@ -110,6 +110,23 @@ nav {
 .tz-gallery .hero-image {
     height: 40vw;
     overflow-y: hidden;
+    text-align: center;
+}
+.tz-gallery .photo-detail {
+    text-align: center;
+}
+.tz-gallery .photo-detail img {
+    max-height: 40vw;
+    width:auto;
+    max-width:100%;
+}
+.tz-gallery .album-detail {
+    text-align: center;
+}
+.tz-gallery .album-detail img {
+    max-height: 25vw;
+    width:auto;
+    max-width:100%;
 }
 
 .baguetteBox-button {
@@ -168,6 +185,10 @@ nav {
     height: 40vw;
 }
 
+.gal-user{
+    color: black;
+}
+
 .galleria-theme-classic {
     background: #fff;
 }
@@ -178,7 +199,7 @@ nav {
 }
 
 .galleria-theme-classic .galleria-info-link {
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.8);
     border-radius: 50%;
     border: 1px solid #96c7ea;
 }
@@ -188,7 +209,7 @@ nav {
 }
 
 .galleria-theme-classic .galleria-info-text {
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.8);
 }
 
 .galleria-theme-classic .galleria-info-title {
@@ -212,7 +233,6 @@ nav {
     z-index: 2;
     -ms-flex: 1 1 auto;
     flex: 1 1 auto;
-    /*width: 1%;*/
     margin-bottom: 0;
     padding: .375rem .75rem;
     font-size: 1rem;

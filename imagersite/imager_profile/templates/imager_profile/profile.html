@@ -6,15 +6,15 @@
 
         <div class="card col-4 mr-3 px-0">
             <div class="card-body pb-0">
-                <h1 class="card-title mt-0">{{ username }}</h1>
-                <h5 class="card-subtitle mb-2 text-muted">{% if camera %}
-                    {{ camera }}
+                <h1 class="card-title mt-0">{{ profile.user.username }}</h1>
+                <h5 class="card-subtitle mb-2 text-muted">{% if profile.camera %}
+                    {{ profile.get_camera_display }}
                     {% else %}
                     No Camera Selected
                 {% endif %}</h3>
             </div>
             <div class="card-text scrolling p-3">
-                <p>{{ bio }}</p>
+                <p>{{ profile.bio }}</p>
             </div>
             <div class="card-footer pb-0">
                 <p>
@@ -41,7 +41,7 @@
                 <ul class="scrolling list-group list-group-flush">
                     {% if albums %}
                         {% for album in albums %}
-                            <a href="#" class="list-group-item list-group-item-action">{{ album }}</a>
+                            <a href="{% url 'album_detail' id=album.id %}" class="list-group-item list-group-item-action">{{ album.title }}</a>
                         {% endfor %}
                     {% else %}
                         <li class="list-group-item">None</li>
@@ -62,7 +62,7 @@
                 <ul class="scrolling list-group list-group-flush">
                     {% if photos %}
                         {% for photo in photos %}
-                            <a href="#" class="list-group-item list-group-item-action">{{ photo }}</a>
+                            <a href="{% url 'photo_detail' id=photo.id %}" class="list-group-item list-group-item-action">{{ photo.title }}</a>
                         {% endfor %}
                     {% else %}
                         <li class="list-group-item">None</li>
@@ -76,15 +76,15 @@
         <div class="card col-6 px-0 ml-0 mr-3 float-left">
             <p class="card-header">Contact:</p>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item">Email: {{ email }}</li>
+                <li class="list-group-item">Email: {{ profile.user.email }}</li>
                 
-                {% if website %}
-                <a href="{{ website }}" class="list-group-item list-group-item-action">Website: {{ website }}</a>
+                {% if profile.website %}
+                <a href="{{ profile.website }}" class="list-group-item list-group-item-action">Website: {{ profile.website }}</a>
                 {% else %}
                 <li class="list-group-item">Website: None</li>
                 {% endif %}
-                <li class="list-group-item">Phone-number: {{ phone }}</li>
-                <li class="list-group-item">Location: {{ location }}</li>
+                <li class="list-group-item">Phone-number: {{ profile.phone }}</li>
+                <li class="list-group-item">Location: {{ profile.location }}</li>
             </ul>
         </div>
 
@@ -92,8 +92,8 @@
 
             <p class="card-header">Services:</p>
             <ul class="list-group list-group-flush">
-                {% if services %}
-                    {% for service in services %}
+                {% if profile.services %}
+                    {% for service in profile.get_services_list %}
                         <li class="list-group-item">{{ service }}</li>
                     {% endfor %}
                 {% else %}
@@ -103,8 +103,8 @@
 
             <p class="card-header" >Photo-styles:</p>
             <ul class="list-group list-group-flush">
-                {% if photostyles %}
-                    {% for photostyle in photostyles %}
+                {% if profile.photostyles %}
+                    {% for photostyle in profile.get_photostyles_list %}
                         <li class="list-group-item">{{ photostyle }}</li>
                     {% endfor %}
                 {% else %}
