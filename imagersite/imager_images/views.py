@@ -1,6 +1,7 @@
 """."""
 from django.shortcuts import get_object_or_404, render, redirect
 from django.conf import settings
+from django.http import Http404
 from imager_images.models import Album, Photo
 
 
@@ -35,16 +36,24 @@ def album_gallery_view(request):
 
 def photo_detail_view(request, id):
     """Detail view of Photos."""
+    photo = get_object_or_404(Photo, id=id)
+    if photo.published != 'PUBLIC':
+        if photo.user.username != request.user.get_username():
+            raise Http404('This Photo does not belong to you')
     context = {
-        'photo': get_object_or_404(Photo, id=id)
+        'photo': photo
     }
     return render(request, 'imager_images/photo_detail.html', context)
 
 
 def album_detail_view(request, id):
     """Detail view of album."""
+    album = get_object_or_404(Album, id=id)
+    if album.published != 'PUBLIC':
+        if album.user.username != request.user.get_username():
+            raise Http404('This album does not belong to you')
     context = {
-        'album': get_object_or_404(Album, id=id),
+        'album': album,
         'default_cover': settings.STATIC_URL + 'default_cover.png'
     }
     return render(request, 'imager_images/album_detail.html', context)

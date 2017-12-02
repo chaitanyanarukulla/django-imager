@@ -19,6 +19,9 @@
     <div class="card col px-0">
             <p class="card-header">Information</p>
             <ul class="list-group list-group-flush">
+                {% if album.description %}
+                <li class="list-group-item"> {{ album.description }}</li>
+                {% endif %}
                 <li class="list-group-item">Photos: {{ album.photos.count }}</li>
                 <li class="list-group-item">Date uploaded: {{ album.date_uploaded }}</li>
                 <li class="list-group-item">Date modified: {{ album.date_modified }}</li>
@@ -30,7 +33,6 @@
         </div>
 </div>
 
-        <p class="page-description text-center mt-0">{{ album.description }}</p>
          <div class="tz-gallery">
 
 <div class="row">

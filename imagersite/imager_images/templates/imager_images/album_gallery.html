@@ -8,7 +8,7 @@
             {% if album.cover %}
                 {% thumbnail album.cover.image "100x100" as im %}
                 <a href="{{ album.cover.image.url }}">
-                    <img 
+                    <img
                         src="{{ im.url }}",
                         data-big="{{ album.cover.image.url }}"
                         data-title="{{ album.title }}"
@@ -16,25 +16,24 @@
                         {% if album.description %}
                         <br>{{ album.description }}
                         {% endif %}"
-                        longdesc="{% url 'home' %}"
+                        longdesc="{% url 'album_detail' id=album.id %}"
                     >
                 </a>
                 {% endthumbnail %}
             {% else %}
                 <a href="{{ default_cover }}">
-                    <img 
+                    <img
                         src="{{ default_cover_thumb }}",
                         data-big="{{ default_cover }}"
                         data-title="{{ album.title }}"
                         {% if album.description %}
                             data-description="{{ album.description }}"
                         {% endif %}
-                        longdesc="{% url 'home' %}"
+                        longdesc="{% url 'album_detail' id=album.id %}"
                     >
                 </a>
             {% endif %}
         {% endfor %}
-            
     </div>
 {% endblock content %}
 

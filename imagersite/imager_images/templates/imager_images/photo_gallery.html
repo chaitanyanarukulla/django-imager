@@ -5,17 +5,16 @@
     <h1>Photos</h1>
     <div id="galleria">
         {% for photo in photos %}
-            
             {% thumbnail photo.image "100x100" as im %}
             <a href="{{ photo.image.url }}">
-                <img 
+                <img
                     src="{{ im.url }}",
                     data-big="{{ photo.image.url }}"
                     data-title="{{ photo.title }}"
                     {% if photo.description %}
                         data-description="{{ photo.description }}"
                     {% endif %}
-                    longdesc="{% url 'home' %}"
+                    longdesc="{% url 'photo_detail' id=photo.id %}"
                 >
             </a>
             {% endthumbnail %}
