@@ -1,26 +1,55 @@
 """Tests for the imagersite routes."""
 from django.core import mail
-from django.test import TestCase, RequestFactory
+from django.conf import settings
+from django.test import TestCase, RequestFactory, override_settings
 from django.urls import reverse_lazy
 from imager_profile.models import User
 from imager_profile.tests import UserFactory
+from imager_images.tests import PhotoFactory
+import os
 
 
 class MainViewUnitTests(TestCase):
     """Tests for the view functions in imagersite."""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         """Set up a dummy request."""
-        self.request = RequestFactory()
+        super(MainViewUnitTests, cls).setUpClass()
+        os.system('mkdir {}'.format(
+            os.path.join(settings.BASE_DIR, 'test_media_for_home')
+        ))
+
+    @classmethod
+    def tearDownClass(cls):
+        """Remove the test directory."""
+        super(MainViewUnitTests, cls).tearDownClass()
+        os.system('rm -rf {}'.format(
+            os.path.join(settings.BASE_DIR, 'test_media_for_home')
+        ))
 
     def test_home_view_returns_page_with_gallery(self):
         """Test that the home_view function returns a page with gallery."""
         from imagersite.views import home_view
-        response = home_view(self.request.get(''))
+        request = RequestFactory()
+        response = home_view(request.get(''))
         self.assertIn(b'tz-gallery', response.content)
 
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test_media_for_home'))
+    def test_home_view_returns_page_with_photo_from_db(self):
+        """Test that the home_view function returns photo from db."""
+        from imagersite.views import home_view
+        user=UserFactory()
+        user.set_password('password')
+        user.save()
+        photo=PhotoFactory(user=user, title='test', published='PUBLIC')
+        photo.save()
+        request = RequestFactory()
+        response = home_view(request.get(''))
+        self.assertIn(b'alt="test"', response.content)
 
-class RoutingTests(TestCase):
+
+class MainRoutingTests(TestCase):
     """Tests for the routes in imagersite."""
 
     def setUp(self):
