@@ -1,0 +1,34 @@
+{% extends 'imagersite/base.html' %}
+{% load thumbnail %}
+
+{% block content %}
+    <h1>Photos</h1>
+    <div id="galleria">
+        {% for photo in photos %}
+            {% thumbnail photo.image "100x100" as im %}
+            <a href="{{ photo.image.url }}">
+                <img
+                    src="{{ im.url }}",
+                    data-big="{{ photo.image.url }}"
+                    data-title="{{ photo.title }}"
+                    {% if photo.description %}
+                        data-description="{{ photo.description }}"
+                    {% endif %}
+                    longdesc="{% url 'photo_detail' id=photo.id %}"
+                >
+            </a>
+            {% endthumbnail %}
+        {% endfor %}
+    </div>
+{% endblock content %}
+
+{% block run_galleria %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/galleria.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/themes/classic/galleria.classic.min.js"></script>
+    <script>
+        Galleria.configure({
+            responsive: true
+        });
+        Galleria.run('#galleria');
+    </script>
+{% endblock run_galleria %}

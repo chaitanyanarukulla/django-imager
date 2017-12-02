@@ -1,0 +1,28 @@
+{% extends 'imagersite/base.html' %}
+
+
+{% block content %}
+<h1>{{ photo.title }}</h1>
+
+<p class="page-description text-center">Posted by {{ photo.user.username }}</p>
+
+<div class="tz-gallery">
+    <div class="col-12 photo-detail">
+        <a class="lightbox fa fa-search" href="{{ photo.image.url }}">
+            <img src="{{ photo.image.url }}" alt="{{ photo.title }}">
+        </a>
+    </div>
+</div>
+<p class="page-description text-center mt-0">{{ photo.description }}</p>
+    <div class="card col-6 px-0 mx-auto">
+            <p class="card-header">Information</p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Date uploaded: {{ photo.date_uploaded }}</li>
+                <li class="list-group-item">Date modified: {{ photo.date_modified }}</li>
+                <li class="list-group-item">Published status: {{ photo.get_published_display }}</li>
+                {% if photo.date_published %}
+                <li class="list-group-item">Date published: {{ photo.date_published }}</li>
+                {% endif %}
+            </ul>
+        </div>
+{% endblock %}

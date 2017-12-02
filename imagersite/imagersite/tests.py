@@ -1,26 +1,56 @@
 """Tests for the imagersite routes."""
 from django.core import mail
-from django.test import TestCase, RequestFactory
+from django.conf import settings
+from django.test import TestCase, RequestFactory, override_settings
 from django.urls import reverse_lazy
 from imager_profile.models import User
 from imager_profile.tests import UserFactory
+from imager_images.tests import PhotoFactory
+import os
 
 
 class MainViewUnitTests(TestCase):
     """Tests for the view functions in imagersite."""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         """Set up a dummy request."""
-        self.request = RequestFactory()
+        super(MainViewUnitTests, cls).setUpClass()
+        os.system('mkdir {}'.format(
+            os.path.join(settings.BASE_DIR, 'test_media_for_home')
+        ))
+
+    @classmethod
+    def tearDownClass(cls):
+        """Remove the test directory."""
+        super(MainViewUnitTests, cls).tearDownClass()
+        os.system('rm -rf {}'.format(
+            os.path.join(settings.BASE_DIR, 'test_media_for_home')
+        ))
 
     def test_home_view_returns_page_with_gallery(self):
         """Test that the home_view function returns a page with gallery."""
         from imagersite.views import home_view
-        response = home_view(self.request.get(''))
+        request = RequestFactory()
+        response = home_view(request.get(''))
         self.assertIn(b'tz-gallery', response.content)
 
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                       'test_media_for_home'))
+    def test_home_view_returns_page_with_photo_from_db(self):
+        """Test that the home_view function returns photo from db."""
+        from imagersite.views import home_view
+        user = UserFactory()
+        user.set_password('password')
+        user.save()
+        photo = PhotoFactory(user=user, title='test', published='PUBLIC')
+        photo.save()
+        request = RequestFactory()
+        response = home_view(request.get(''))
+        self.assertIn(b'alt="test"', response.content)
 
-class RoutingTests(TestCase):
+
+class MainRoutingTests(TestCase):
     """Tests for the routes in imagersite."""
 
     def setUp(self):
@@ -47,7 +77,7 @@ class RoutingTests(TestCase):
     def test_login_get_login_form(self):
         """Test that login get route has a login form."""
         response = self.client.get(reverse_lazy('login'))
-        self.assertIn(b'<h2 class="title">Login</h2>', response.content)
+        self.assertIn(b'<h1 class="title">Login</h1>', response.content)
 
     def test_login_post_invalid_user_has_200_response(self):
         """Test that login with invalid username has a 200 response code."""
@@ -100,13 +130,13 @@ class RoutingTests(TestCase):
         response = self.client.get(reverse_lazy('home'))
         self.assertIn(b'Welcome,', response.content)
 
-    def test_login_post_valid_login_redirects_to_home_page(self):
+    def test_login_post_valid_login_redirects_to_profile_page(self):
         """Test that login with valid login redirects to home page."""
         response = self.client.post(reverse_lazy('login'), {
             'username': 'bob',
             'password': 'password'
         }, follow=True)
-        self.assertEqual(response.redirect_chain[0][0], reverse_lazy('home'))
+        self.assertEqual(response.redirect_chain[0][0], '/profile/')
 
     def test_logout_get_has_200_response(self):
         """Test that logout get route has a 200 response code."""
@@ -135,7 +165,7 @@ class RoutingTests(TestCase):
     def test_register_get_has_register_form(self):
         """Test that register get route has registration form."""
         response = self.client.get(reverse_lazy('registration_register'))
-        self.assertIn(b'<h2 class="title">Register</h2>', response.content)
+        self.assertIn(b'<h1 class="title">Register</h1>', response.content)
 
     def test_register_valid_user_password_gets_302_response(self):
         """Test if valid user with password responds with 302."""
@@ -155,7 +185,7 @@ class RoutingTests(TestCase):
             'password2': 'Codefellows',
             'email': 'rob@email.com'
         }, follow=True)
-        self.assertIn(b'Registration is Compleated', response.content)
+        self.assertIn(b'Registration is Completed', response.content)
 
     def test_register_valid_user_password_creates_inactive_user(self):
         """Test if valid user with password creates a new inactive user."""
@@ -199,7 +229,7 @@ class RoutingTests(TestCase):
         })
         activation = re.findall('/accounts/activate/.+/', mail.outbox[0].body)
         response = self.client.get(activation[0], follow=True)
-        self.assertIn(b'Activation is Compleated', response.content)
+        self.assertIn(b'Activation is Completed', response.content)
 
     def test_register_allows_login_to_new_users(self):
         """Test if users created can log in."""

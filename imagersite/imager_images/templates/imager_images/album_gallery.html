@@ -1,0 +1,49 @@
+{% extends 'imagersite/base.html' %}
+{% load thumbnail %}
+
+{% block content %}
+    <h1>Albums</h1>
+    <div id="galleria">
+        {% for album in albums %}
+            {% if album.cover %}
+                {% thumbnail album.cover.image "100x100" as im %}
+                <a href="{{ album.cover.image.url }}">
+                    <img
+                        src="{{ im.url }}",
+                        data-big="{{ album.cover.image.url }}"
+                        data-title="{{ album.title }}"
+                        data-description="<span class='gal-user'>Posted by {{ album.user.username }}</span>
+                        {% if album.description %}
+                        <br>{{ album.description }}
+                        {% endif %}"
+                        longdesc="{% url 'album_detail' id=album.id %}"
+                    >
+                </a>
+                {% endthumbnail %}
+            {% else %}
+                <a href="{{ default_cover }}">
+                    <img
+                        src="{{ default_cover_thumb }}",
+                        data-big="{{ default_cover }}"
+                        data-title="{{ album.title }}"
+                        {% if album.description %}
+                            data-description="{{ album.description }}"
+                        {% endif %}
+                        longdesc="{% url 'album_detail' id=album.id %}"
+                    >
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock content %}
+
+{% block run_galleria %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/galleria.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/themes/classic/galleria.classic.min.js"></script>
+    <script>
+        Galleria.configure({
+            responsive: true
+        });
+        Galleria.run('#galleria');
+    </script>
+{% endblock run_galleria %}

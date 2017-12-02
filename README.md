@@ -5,7 +5,7 @@
 
 **Author**: Megan Flood and Chaitanya Naru
 
-**Version**: 1.3.0
+**Version**: 1.4.0
 
 ## Overview
 A simple image management website using Django.
@@ -16,9 +16,14 @@ A simple image management website using Django.
 |`/`|home|the landing page|
 |`/login`|login|GET: the login form page<br>POST: logs a user into their account, {username, password}|
 |`/logout`|logout|log out the currently logged in user|
+|`/profile/<username>`|profile|profile file for given user|
+|`/images/library`|library|library os all the logged in user's albums and photos|
+|`/images/photos`|photo_gallery|gallery of all public photos|
+|`/images/albums`|album_gallery|gallery of all public albums|
+|`/images/photos/<id>`|photo_detail|detail of a single photo|
+|`/images/albums/<id>`|album_detail|detail of asingel album|
 |`/accounts/*`|all registration routes| included from [django-registration](http://django-registration.readthedocs.io/en/stable/index.html)|
 |`/admin/*`|all built-in admin routes| included from [Django admin](https://docs.djangoproject.com/en/1.11/ref/contrib/admin/#reversing-admin-urls)|
-
 
 ## Getting Started
 
@@ -81,6 +86,8 @@ You can test this application by first exporting an environmental variable point
 Built with Python and Django framework. Tested through Django testing suite.
 
 ## Change Log
+
+12-01-2017 8:37pm - Added photo, album, and profile views with tests.
 
 11-28-2017 8:35pm - Added Photo and Album models with tests.
 

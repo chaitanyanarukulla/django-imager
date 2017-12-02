@@ -8,6 +8,8 @@ from django.dispatch import receiver
 class ImagerProfile(models.Model):
     """Profile for a user of Imager."""
 
+    user = models.OneToOneField(User, related_name='profile')
+
     website = models.URLField(max_length=180, blank=True, null=True)
     location = models.CharField(max_length=180, blank=True, null=True)
     fee = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True)
@@ -17,6 +19,7 @@ class ImagerProfile(models.Model):
                                        ('AC', 'Advanced Compact'),
                                        ('SLR', 'Single Lens Reflex')))
     services = MultiSelectField(
+        blank=True, null=True,
         choices=(('weddings', 'Weddings'),
                  ('headshots', 'HeadShots'),
                  ('landscape', 'LandScape'),
@@ -25,18 +28,22 @@ class ImagerProfile(models.Model):
     bio = models.TextField(blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     photostyles = MultiSelectField(
+        blank=True, null=True,
         choices=(('blackandwhite', 'Black and White'),
                  ('night', 'Night'),
                  ('macro', 'Macro'),
                  ('3d', '3D'),
                  ('artistic', 'Artistic'),
                  ('underwater', 'Underwater')))
-    user = models.OneToOneField(User, related_name='profile')
     is_active = models.BooleanField(default=True)
 
     def active():
         """Get a QuerySet of all active profiles."""
         return ImagerProfile.objects.filter(is_active=True)
+
+    def __str__(self):
+        """The string from of the profile."""
+        return 'Profile: ' + self.user.username
 
 
 @receiver(models.signals.post_save, sender=User)

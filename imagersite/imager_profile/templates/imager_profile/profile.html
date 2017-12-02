@@ -1,0 +1,118 @@
+{% extends 'imagersite/base.html' %}
+
+{% block content %}
+<div class="container mt-5 mb-4">
+    <div class="profile-row-1 row mb-3 mx-0">
+
+        <div class="card col-4 mr-3 px-0">
+            <div class="card-body pb-0">
+                <h1 class="card-title mt-0">{{ profile.user.username }}</h1>
+                <h5 class="card-subtitle mb-2 text-muted">{% if profile.camera %}
+                    {{ profile.get_camera_display }}
+                    {% else %}
+                    No Camera Selected
+                {% endif %}</h3>
+            </div>
+            <div class="card-text scrolling p-3">
+                <p>{{ profile.bio }}</p>
+            </div>
+            <div class="card-footer pb-0">
+                <p>
+                    Fee: {% if fee %}
+                        ${{ fee }}
+                    {% else %}
+                        Free
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="card-deck col-8 pr-0">
+            <div class="card ">
+                <div class="card-body">
+                    <h2 class="card-title">Albums</h2>
+                    {% if owner %}
+                    <p class="card-text text-muted text-center">
+                        <span class="col-6">Public: {{ album_public_count }}</span>
+                        <span class="col-6">Private: {{ album_private_count }}</span>
+                    </p>
+                    {% endif %}
+                </div>
+                <ul class="scrolling list-group list-group-flush">
+                    {% if albums %}
+                        {% for album in albums %}
+                            <a href="{% url 'album_detail' id=album.id %}" class="list-group-item list-group-item-action">{{ album.title }}</a>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item">None</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="card mr-0">
+                <div class="card-body">
+                    <h2 class="card-title">Photos</h2>
+                    {% if owner %}
+                    <p class="card-text text-muted text-center">
+                        <span class="col-6">Public: {{ photo_public_count }}</span>
+                        <span class="col-6">Private: {{ photo_private_count }}</span>
+                    </p>
+                    {% endif %}
+                </div>
+                <ul class="scrolling list-group list-group-flush">
+                    {% if photos %}
+                        {% for photo in photos %}
+                            <a href="{% url 'photo_detail' id=photo.id %}" class="list-group-item list-group-item-action">{{ photo.title }}</a>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item">None</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix">
+        <div class="card col-6 px-0 ml-0 mr-3 float-left">
+            <p class="card-header">Contact:</p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Email: {{ profile.user.email }}</li>
+                
+                {% if profile.website %}
+                <a href="{{ profile.website }}" class="list-group-item list-group-item-action">Website: {{ profile.website }}</a>
+                {% else %}
+                <li class="list-group-item">Website: None</li>
+                {% endif %}
+                <li class="list-group-item">Phone-number: {{ profile.phone }}</li>
+                <li class="list-group-item">Location: {{ profile.location }}</li>
+            </ul>
+        </div>
+
+        <div class="card px-0">
+
+            <p class="card-header">Services:</p>
+            <ul class="list-group list-group-flush">
+                {% if profile.services %}
+                    {% for service in profile.get_services_list %}
+                        <li class="list-group-item">{{ service }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item">None</li>
+                {% endif %}
+            </ul>
+
+            <p class="card-header" >Photo-styles:</p>
+            <ul class="list-group list-group-flush">
+                {% if profile.photostyles %}
+                    {% for photostyle in profile.get_photostyles_list %}
+                        <li class="list-group-item">{{ photostyle }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item">None</li>
+                {% endif %}
+            </ul>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -39,8 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'multiselectfield',
+    'sorl.thumbnail',
     'imager_profile',
-    'imager_images'
+    'imager_images',
 ]
 
 MIDDLEWARE = [
@@ -73,7 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'imagersite.wsgi.application'
 
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = "/profile/"
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases

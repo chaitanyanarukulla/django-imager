@@ -1,7 +1,10 @@
 """Tests for the Photo and Album models."""
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.http import Http404
+from django.test import override_settings, RequestFactory, TestCase
+from django.urls import reverse_lazy
 from imager_images.models import Photo, Album
 from imager_profile.models import User
 from imager_profile.tests import UserFactory
@@ -9,7 +12,6 @@ from imager_profile.tests import UserFactory
 from datetime import datetime
 import factory
 import os
-import random
 
 
 class PhotoFactory(factory.django.DjangoModelFactory):
@@ -29,7 +31,7 @@ class PhotoFactory(factory.django.DjangoModelFactory):
     )
     title = factory.Faker('word')
     description = factory.Faker('sentence')
-    published = random.choice(['PRIVATE', 'SHARED', 'PUBLIC'])
+    published = 'PUBLIC'
 
 
 class AlbumFactory(factory.django.DjangoModelFactory):
@@ -42,14 +44,15 @@ class AlbumFactory(factory.django.DjangoModelFactory):
 
     title = factory.Faker('word')
     description = factory.Faker('sentence')
-    published = random.choice(['PRIVATE', 'SHARED', 'PUBLIC'])
+    published = 'PUBLIC'
 
 
 class PhotoAlbumTests(TestCase):
     """Tests for the imager_profile module."""
 
     @classmethod
-    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, "test_media_for_photos"))
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photos"))
     def setUpClass(cls):
         """Add one minimal user to the database."""
         super(PhotoAlbumTests, cls).setUpClass()
@@ -97,11 +100,22 @@ class PhotoAlbumTests(TestCase):
             os.path.join(settings.BASE_DIR, 'test_media_for_photos')
         ))
 
+    def test_photo_to_string_is_correct(self):
+        """Test that the __str__ method returns the photo title."""
+        one_photo = Photo.objects.get(title='wedding')
+        self.assertEqual(str(one_photo), 'Photo: wedding')
+
+    def test_album_to_string_is_correct(self):
+        """Test that the __str__ method returns the album title."""
+        one_album = Album.objects.get(title='first')
+        self.assertEqual(str(one_album), 'Album: first')
+
     def test_all_photos_are_added_to_the_database(self):
         """Test that all created photos are added to the database."""
         self.assertEqual(Photo.objects.count(), 36)
 
-    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, "test_media_for_photos"))
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photos"))
     def test_all_photos_are_added_to_the_media_directory(self):
         """Test that all created photos are added to the media directory."""
         path = os.path.join(settings.MEDIA_ROOT, 'images')
@@ -110,7 +124,8 @@ class PhotoAlbumTests(TestCase):
 
     def test_photos_are_added_to_an_album(self):
         """Test that all created photos are added to the database."""
-        self.assertEqual(Photo.objects.filter(albums__title='first').count(), 15)
+        photos = Photo.objects.filter(albums__title='first').count()
+        self.assertEqual(photos, 15)
 
     def test_photo_has_user(self):
         """Test that the photo has a user."""
@@ -140,7 +155,8 @@ class PhotoAlbumTests(TestCase):
         now = datetime.now().strftime('%x %X')[:2]
         self.assertEqual(one_photo.date_modified.strftime('%x %X')[:2], now)
 
-    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, "test_media_for_photos"))
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photos"))
     def test_photo_modified_changes_modified_date_not_uploaded_date(self):
         """Test the uploaded date does not change when a photo is modified."""
         user = UserFactory()
@@ -192,7 +208,8 @@ class PhotoAlbumTests(TestCase):
         now = datetime.now().strftime('%x %X')[:2]
         self.assertEqual(one_album.date_modified.strftime('%x %X')[:2], now)
 
-    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, "test_media_for_photos"))
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photos"))
     def test_album_modified_changes_modified_date_not_uploaded_date(self):
         """Test the uploaded date does not change when a album is modified."""
         user = UserFactory()
@@ -211,3 +228,289 @@ class PhotoAlbumTests(TestCase):
         """Test that the album has a date-published that is None by default."""
         one_album = Album.objects.get(title='first')
         self.assertIsNone(one_album.date_published)
+
+
+class PhotoAlbumViewTests(TestCase):
+    """Tests for the views of imager_images."""
+
+    @classmethod
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_view"))
+    def setUpClass(cls):
+        """Add one user to the database."""
+        super(PhotoAlbumViewTests, cls).setUpClass()
+
+        os.system('mkdir {}'.format(
+            os.path.join(settings.BASE_DIR, 'test_media_for_photo_view')
+        ))
+
+        cls.request = RequestFactory()
+
+        user = UserFactory(username='bob')
+        user.set_password(factory.Faker('password'))
+        user.save()
+        cls.bob = user
+
+        album = AlbumFactory(title='bob first', description='this is first',
+                             published='PRIVATE', user=user)
+        album.save()
+
+        for _ in range(5):
+            photo = PhotoFactory(user=user, published='PRIVATE')
+            photo.save()
+            album.photos.add(photo)
+
+        album = AlbumFactory(title='bob second', description='this is second',
+                             published='PUBLIC', user=user)
+        album.save()
+
+        for _ in range(10):
+            photo = PhotoFactory(user=user)
+            photo.save()
+            album.photos.add(photo)
+
+        user = UserFactory(username='rob')
+        user.set_password(factory.Faker('password'))
+        user.save()
+
+        album = AlbumFactory(title='rob first', description='this is first',
+                             published='PRIVATE', user=user)
+        album.save()
+
+        for _ in range(3):
+            photo = PhotoFactory(user=user, published='PRIVATE')
+            photo.save()
+            album.photos.add(photo)
+
+        album = AlbumFactory(title='rob second', description='this is second',
+                             published='PUBLIC', user=user)
+        album.save()
+
+        for _ in range(13):
+            photo = PhotoFactory(user=user)
+            photo.save()
+            album.photos.add(photo)
+
+    @classmethod
+    def tearDownClass(cls):
+        """Remove the test directory."""
+        super(PhotoAlbumViewTests, cls).tearDownClass()
+        os.system('rm -rf {}'.format(
+            os.path.join(settings.BASE_DIR, 'test_media_for_photo_view')))
+
+    def test_library_view_redirects_home_not_logged_in(self):
+        """Test that library_view redirects home if not logged in."""
+        from imager_images.views import library_view
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        response = library_view(request)
+        self.assertEquals(response.status_code, 302)
+
+    def test_library_view_logged_in_displays_all_photos_and_albums(self):
+        """Test that library_view displays all logged in user's things."""
+        from imager_images.views import library_view
+        request = self.request.get('')
+        request.user = self.bob
+        response = library_view(request)
+        image_count = response.content.count(b'<img')
+        self.assertEquals(image_count, 17)
+
+    def test_photo_gallery_view_has_all_public_photos(self):
+        """Test that the photo_gallery_view has all public photos."""
+        from imager_images.views import photo_gallery_view
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        response = photo_gallery_view(request)
+        image_count = response.content.count(b'<img')
+        self.assertEquals(image_count, 23)
+
+    def test_album_gallery_view_has_all_public_albums(self):
+        """Test that the album_gallery_view has all public albums."""
+        from imager_images.views import album_gallery_view
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        response = album_gallery_view(request)
+        image_count = response.content.count(b'<img')
+        self.assertEquals(image_count, 2)
+
+    def test_photo_detail_view_invalid_id_raises_404(self):
+        """Test that an invalid id for photo_detail_view raises a 404."""
+        from imager_images.views import photo_detail_view
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        with self.assertRaises(Http404):
+            photo_detail_view(request, '1000000000')
+
+    def test_photo_detail_view_non_public_photo_raises_404(self):
+        """Test that a non public photo for photo_detail_view raises a 404."""
+        from imager_images.views import photo_detail_view
+        photo = Photo.objects.filter(published='PRIVATE').first()
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        with self.assertRaises(Http404):
+            photo_detail_view(request, photo.id)
+
+    def test_photo_detail_view_valid_id_gets_correct_photo(self):
+        """Test that photo_detail_view for valid id has correct photo."""
+        from imager_images.views import photo_detail_view
+        photo = Photo.objects.filter(published='PUBLIC').first()
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        response = photo_detail_view(request, photo.id)
+        self.assertIn(photo.title.encode('utf8'), response.content)
+
+    def test_album_detail_view_invalid_id_raises_404(self):
+        """Test that an invalid id for album_detail_view raises a 404."""
+        from imager_images.views import album_detail_view
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        with self.assertRaises(Http404):
+            album_detail_view(request, '1000000000')
+
+    def test_album_detail_view_non_public_album_raises_404(self):
+        """Test that a non public album for album_detail_view raises a 404."""
+        from imager_images.views import album_detail_view
+        album = Album.objects.filter(published='PRIVATE').first()
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        with self.assertRaises(Http404):
+            album_detail_view(request, album.id)
+
+    def test_album_detail_view_valid_id_gets_correct_album(self):
+        """Test that album_detail_view for valid id has correct album."""
+        from imager_images.views import album_detail_view
+        album = Album.objects.filter(published='PUBLIC').first()
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        response = album_detail_view(request, album.id)
+        self.assertIn(album.title.encode('utf8'), response.content)
+
+
+class PhotoAlbumRouteTests(TestCase):
+    """Tests for the routes of imager_images."""
+
+    @classmethod
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def setUpClass(cls):
+        """Add one minimal user to the database."""
+        super(PhotoAlbumRouteTests, cls).setUpClass()
+
+        os.system('mkdir {}'.format(
+            os.path.join(settings.BASE_DIR, 'test_media_for_photo_route')
+        ))
+
+        user = UserFactory(username='bob')
+        user.set_password('password')
+        user.save()
+        cls.bob = user
+
+        album = AlbumFactory(title='bob first', description='this is first',
+                             published='PRIVATE', user=user)
+        album.save()
+
+        for _ in range(5):
+            photo = PhotoFactory(user=user, published='PRIVATE')
+            photo.save()
+            album.photos.add(photo)
+
+        album = AlbumFactory(title='bob second', description='this is second',
+                             published='PUBLIC', user=user)
+        album.save()
+
+        for _ in range(10):
+            photo = PhotoFactory(user=user)
+            photo.save()
+            album.photos.add(photo)
+
+        user = UserFactory(username='rob')
+        user.set_password(factory.Faker('password'))
+        user.save()
+
+        album = AlbumFactory(title='rob first', description='this is first',
+                             published='PRIVATE', user=user)
+        album.save()
+
+        for _ in range(3):
+            photo = PhotoFactory(user=user, published='PRIVATE')
+            photo.save()
+            album.photos.add(photo)
+
+        album = AlbumFactory(title='rob second', description='this is second',
+                             published='PUBLIC', user=user)
+        album.save()
+
+        for _ in range(13):
+            photo = PhotoFactory(user=user)
+            photo.save()
+            album.photos.add(photo)
+
+    @classmethod
+    def tearDownClass(cls):
+        """Remove the test directory."""
+        super(PhotoAlbumRouteTests, cls).tearDownClass()
+        os.system('rm -rf {}'.format(
+            os.path.join(settings.BASE_DIR, 'test_media_for_photo_route')))
+
+    def test_library_route_not_logged_in_gets_302(self):
+        """Test that library route gets 302 status code if not logged in."""
+        response = self.client.get(reverse_lazy('library'))
+        self.assertEquals(response.status_code, 302)
+
+    def test_library_route_redirects_home_not_logged_in(self):
+        """Test that library route redirects home if not logged in."""
+        response = self.client.get(reverse_lazy('library'), follow=True)
+        self.assertIn(b'<h1>Imager</h1>', response.content)
+
+    def test_library_route_logged_in_displays_all_photos_and_albums(self):
+        """Test that library route displays all logged in user's things."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('library'))
+        image_count = response.content.count(b'<img')
+        self.assertEquals(image_count, 17)
+
+    def test_photo_gallery_route_has_all_public_photos(self):
+        """Test that the photo gallery route has all public photos."""
+        response = self.client.get(reverse_lazy('photo_gallery'))
+        image_count = response.content.count(b'<img')
+        self.assertEquals(image_count, 23)
+
+    def test_album_gallery_route_has_all_public_albums(self):
+        """Test that the album gallery route has all public albums."""
+        response = self.client.get(reverse_lazy('album_gallery'))
+        image_count = response.content.count(b'<img')
+        self.assertEquals(image_count, 2)
+
+    def test_photo_detail_route_invalid_id_raises_404(self):
+        """Test that an invalid id for photo detail route raises a 404."""
+        response = self.client.get('/images/photos/1000000000/')
+        self.assertEquals(response.status_code, 404)
+
+    def test_photo_detail_route_non_public_photo_raises_404(self):
+        """Test that a non public photo for photo_detail_route raises a 404."""
+        photo = Photo.objects.filter(published='PRIVATE').first()
+        response = self.client.get('/images/photos/{}'.format(photo.id))
+        self.assertEquals(response.status_code, 404)
+
+    def test_photo_detail_route_valid_id_gets_correct_photo(self):
+        """Test that photo_detail_route for valid id has correct photo."""
+        photo = Photo.objects.filter(published='PUBLIC').first()
+        response = self.client.get('/images/photos/{}'.format(photo.id))
+        self.assertIn(photo.title.encode('utf8'), response.content)
+
+    def test_album_detail_route_invalid_id_raises_404(self):
+        """Test that an invalid id for album detail route raises a 404."""
+        response = self.client.get('/images/albums/1000000000/')
+        self.assertEquals(response.status_code, 404)
+
+    def test_album_detail_route_non_public_album_raises_404(self):
+        """Test that a non public album for album_detail_route raises a 404."""
+        album = Album.objects.filter(published='PRIVATE').first()
+        response = self.client.get('/images/albums/{}'.format(album.id))
+        self.assertEquals(response.status_code, 404)
+
+    def test_album_detail_route_valid_id_gets_correct_album(self):
+        """Test that album_detail_route for valid id has correct album."""
+        album = Album.objects.filter(published='PUBLIC').first()
+        response = self.client.get('/images/albums/{}'.format(album.id))
+        self.assertIn(album.title.encode('utf8'), response.content)
