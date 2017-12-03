@@ -103,12 +103,12 @@ class PhotoAlbumTests(TestCase):
     def test_photo_to_string_is_correct(self):
         """Test that the __str__ method returns the photo title."""
         one_photo = Photo.objects.get(title='wedding')
-        self.assertEqual(str(one_photo), 'Photo: wedding')
+        self.assertEqual(str(one_photo), 'wedding')
 
     def test_album_to_string_is_correct(self):
         """Test that the __str__ method returns the album title."""
         one_album = Album.objects.get(title='first')
-        self.assertEqual(str(one_album), 'Album: first')
+        self.assertEqual(str(one_album), 'first')
 
     def test_all_photos_are_added_to_the_database(self):
         """Test that all created photos are added to the database."""

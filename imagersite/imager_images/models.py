@@ -1,6 +1,7 @@
 """Photo and Album models created by a User."""
 from django.db import models
 from django.contrib.auth.models import User
+from django.forms import ModelForm
 from sorl.thumbnail import ImageField
 
 
@@ -23,7 +24,7 @@ class Photo(models.Model):
 
     def __str__(self):
         """The string from of the image."""
-        return 'Photo: ' + self.title
+        return self.title
 
 
 class Album(models.Model):
@@ -47,4 +48,21 @@ class Album(models.Model):
 
     def __str__(self):
         """The string from of the album."""
-        return 'Album: ' + self.title
+        return self.title
+
+
+class AlbumForm(ModelForm):
+    """Form for an Album."""
+
+    class Meta:
+        """Meta."""
+
+        model = Album
+        fields = ['title', 'description', 'photos', 'cover', 'published']
+
+    def __init__(self, *args, **kwargs):
+        """Limit photos to only those by the user."""
+        username = kwargs.pop('username')
+        super(AlbumForm, self).__init__(*args, **kwargs)
+        self.fields['photos'].queryset = Photo.objects.filter(user__username=username)
+        self.fields['cover'].queryset = Photo.objects.filter(user__username=username)

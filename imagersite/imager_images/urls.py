@@ -6,5 +6,7 @@ urlpatterns = [
     url(r'photos$', views.PhotoGalleryView.as_view(), name='photo_gallery'),
     url(r'albums$', views.AlbumGalleryView.as_view(), name='album_gallery'),
     url(r'photos/(?P<id>\d+)$', views.PhotoDetailView.as_view(), name='photo_detail'),
-    url(r'albums/(?P<id>\d+)$', views.AlbumDetailView.as_view(), name='album_detail')
+    url(r'albums/(?P<id>\d+)$', views.AlbumDetailView.as_view(), name='album_detail'),
+    url(r'photos/add$', views.AlbumCreateView.as_view(), name='photo_create'),
+    url(r'albums/add$', views.AlbumCreateView.as_view(), name='album_create')
 ]

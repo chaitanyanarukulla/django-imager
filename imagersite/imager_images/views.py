@@ -2,8 +2,9 @@
 from django.shortcuts import redirect
 from django.conf import settings
 from django.http import Http404
-from imager_images.models import Album, Photo
-from django.views.generic import DetailView, ListView
+from django.utils import timezone
+from django.views.generic import CreateView, DetailView, ListView
+from imager_images.models import Album, AlbumForm, Photo
 
 
 class LibraryView(ListView):
@@ -90,3 +91,37 @@ class AlbumDetailView(DetailView):
             if album.user.username != self.request.user.get_username():
                 raise Http404('This album does not belong to you')
         return album
+
+
+class AlbumCreateView(CreateView):
+    """Create a new album and store in the database."""
+
+    template_name = 'imager_images/album_create.html'
+    model = Album
+    form_class = AlbumForm
+    success_url = 'library'
+
+    def get(self, *args, **kwargs):
+        """Redirect to home if not logged in otherwise display library."""
+        if self.request.user.get_username() == '':
+            return redirect('home')
+        return super(AlbumCreateView, self).get(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        """Redirect to home if not logged in otherwise display library."""
+        if self.request.user.get_username() == '':
+            return redirect('home')
+        return super(LibraryView, self).post(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        """Update the kwargs to include the current user's username."""
+        kwargs = super(AlbumCreateView, self).get_form_kwargs()
+        kwargs.update({'username': self.request.user.username})
+        return kwargs
+
+    def form_valid(self, form):
+        """Assign user as creater of album."""
+        form.instance.user = self.request.user
+        if form.instance.published == 'PUBLIC':
+            form.instance.date_published = timezone.now()
+        return super(AlbumCreateView, self).form_valid(form)
