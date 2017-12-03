@@ -1,37 +1,55 @@
 """View functions for the profile page."""
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect
+from django.views.generic import DetailView
 from imager_profile.models import ImagerProfile
 from imager_images.models import Album, Photo
 
 
-def profile_view(request, username=None):
-    """Render the profile for a user."""
-    owner = False
-    if not username:
-        username = request.user.get_username()
-        owner = True
-        if username == '':
-            return redirect('home')
+class ProfileView(DetailView):
+    """Profile view for a single user."""
 
-    profile = get_object_or_404(ImagerProfile, user__username=username)
-    photos = Photo.objects.filter(user__username=username)
-    albums = Album.objects.filter(user__username=username)
+    template_name = 'imager_profile/profile.html'
+    model = ImagerProfile
+    slug_field = 'user__username'
+    slug_url_kwarg = 'username'
 
-    if not owner:
-        photos = photos.filter(published='PUBLIC')
-        albums = albums.filter(published='PUBLIC')
+    def get(self, *args, **kwargs):
+        """Redirect home if not logged in."""
+        # import pdb; pdb.set_trace()
+        if not self.kwargs['username']:
+            self.kwargs['username'] = self.request.user.get_username()
+            if self.kwargs['username'] == '':
+                return redirect('home')
 
-    context = {
-        'owner': owner,
-        'profile': profile,
-        'fee': "{:,.2f}".format(profile.fee) if profile.fee else 0,
+        if self.kwargs['username'].endswith('/'):
+            self.kwargs['username'] = self.kwargs['username'][:-1]
+        return super(ProfileView, self).get(*args, **kwargs)
 
-        'albums': albums,
-        'album_private_count': albums.filter(published='PRIVATE').count(),
-        'album_public_count': albums.filter(published='PUBLIC').count(),
+    def get_context_data(self, **kwargs):
+        """Get the user's profile, photos, and albums."""
+        # import pdb; pdb.set_trace()
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        username = kwargs['object'].user.username
 
-        'photos': photos,
-        'photo_private_count': photos.filter(published='PRIVATE').count(),
-        'photo_public_count': photos.filter(published='PUBLIC').count()
-    }
-    return render(request, 'imager_profile/profile.html', context)
+        owner = False
+        if username == self.request.user.username:
+            owner = True
+
+        context['owner'] = owner
+
+        photos = Photo.objects.filter(user__username=username)
+        albums = Album.objects.filter(user__username=username)
+
+        if not owner:
+            photos = photos.filter(published='PUBLIC')
+            albums = albums.filter(published='PUBLIC')
+
+        context['albums'] = albums
+        context['album_private_count'] = albums.filter(published='PRIVATE').count()
+        context['album_public_count'] = albums.filter(published='PUBLIC').count()
+
+        context['photos'] = photos
+        context['photo_private_count'] = photos.filter(published='PRIVATE').count()
+        context['photo_public_count'] = photos.filter(published='PUBLIC').count()
+
+        return context

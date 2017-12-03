@@ -19,6 +19,7 @@ class HomeView(TemplateView):
         else:
             image_url = settings.STATIC_URL + 'test_image.jpg'
             image_title = 'High-Five'
-        return {'hero_img_url': image_url,
-                'hero_img_title': image_title
-                }
+        return {
+            'hero_img_url': image_url,
+            'hero_img_title': image_title
+        }

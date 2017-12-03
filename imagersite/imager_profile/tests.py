@@ -166,35 +166,66 @@ class ProfileViewUnitTests(TestCase):
 
     def test_profile_view_with_user_name_gets_user_profile(self):
         """Test that the p_view function returns a page with user profile."""
-        from imager_profile.views import profile_view
+        from imager_profile.views import ProfileView
         request = self.request.get('')
         request.user = AnonymousUser()
-        response = profile_view(request, 'bob')
+        view = ProfileView(request=request, kwargs={'username': 'bob'})
+        response = view.get(request)
+        response.render()
+        self.assertIn(b'I photograph things all the time.', response.content)
+
+    def test_profile_view_with_user_name_gets_user_profile_even_with_slash(self):
+        """Test that the p_view function returns a page with user profile."""
+        from imager_profile.views import ProfileView
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        view = ProfileView(request=request, kwargs={'username': 'bob/'})
+        response = view.get(request)
+        response.render()
         self.assertIn(b'I photograph things all the time.', response.content)
 
     def test_profile_view_with_no_user_name_not_logged_in_redirets_home(self):
         """Test profile_view with no user name not logged in redirets."""
-        from imager_profile.views import profile_view
+        from imager_profile.views import ProfileView
         request = self.request.get('')
         request.user = AnonymousUser()
-        response = profile_view(request)
+        view = ProfileView(request=request, kwargs={'username': ''})
+        response = view.get(request)
         self.assertEqual(response.status_code, 302)
-
-    def test_profile_view_with_bad_user_returns_404(self):
-        """Test profile_view with bad user returns 404."""
-        from imager_profile.views import profile_view
-        request = self.request.get('')
-        request.user = AnonymousUser()
-        with self.assertRaises(Http404):
-            profile_view(request, 'don')
 
     def test_profile_view_with_logged_in_user_gets_user_profile(self):
         """Test profile_view with logged in user gets user profile."""
-        from imager_profile.views import profile_view
+        from imager_profile.views import ProfileView
         request = self.request.get('')
         request.user = self.bob
-        response = profile_view(request)
+        view = ProfileView(request=request, kwargs={'username': ''})
+        response = view.get(request)
+        response.render()
         self.assertIn(b'I photograph things all the time.', response.content)
+
+    def test_profile_view_get_context_has_view_photos_and_albums_for_owner(self):
+        """Test that the context from ProfileView has all properties."""
+        from imager_profile.views import ProfileView
+        request = self.request.get('')
+        request.user = self.bob
+        view = ProfileView(request=request, object='')
+        data = view.get_context_data(object=ImagerProfile.objects.first())
+        self.assertIn('view', data)
+        self.assertIn('photos', data)
+        self.assertIn('albums', data)
+        self.assertTrue(data['owner'])
+
+    def test_profile_view_get_context_has_view_photos_and_albums_for_non_owner(self):
+        """Test that the context from ProfileView has all properties."""
+        from imager_profile.views import ProfileView
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        view = ProfileView(request=request, object='')
+        data = view.get_context_data(object=ImagerProfile.objects.first())
+        self.assertIn('view', data)
+        self.assertIn('photos', data)
+        self.assertIn('albums', data)
+        self.assertFalse(data['owner'])
 
 
 class ProfileRoutingTests(TestCase):

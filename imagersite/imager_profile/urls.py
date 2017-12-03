@@ -1,7 +1,7 @@
 """."""
 from django.conf.urls import url
-from imager_profile.views import profile_view
+from imager_profile.views import ProfileView
 
 urlpatterns = [
-    url(r'(?P<username>.*)$', profile_view, name='profile')
+    url(r'(?P<username>.*)$', ProfileView.as_view(), name='profile')
 ]
