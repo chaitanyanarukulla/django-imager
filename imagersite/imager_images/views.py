@@ -93,10 +93,38 @@ class AlbumDetailView(DetailView):
         return album
 
 
+class PhotoCreateView(CreateView):
+    """Create a new photo and store in the database."""
+
+    template_name = 'imager_images/photo_form.html'
+    model = Photo
+    fields = ['title', 'description', 'image', 'published']
+    success_url = 'library'
+
+    def get(self, *args, **kwargs):
+        """Redirect to home if not logged in otherwise display library."""
+        if self.request.user.get_username() == '':
+            return redirect('home')
+        return super(PhotoCreateView, self).get(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        """Redirect to home if not logged in otherwise display library."""
+        if self.request.user.get_username() == '':
+            return redirect('home')
+        return super(PhotoCreateView, self).post(*args, **kwargs)
+
+    def form_valid(self, form):
+        """Assign user as creater of photo."""
+        form.instance.user = self.request.user
+        if form.instance.published == 'PUBLIC':
+            form.instance.date_published = timezone.now()
+        return super(PhotoCreateView, self).form_valid(form)
+
+
 class AlbumCreateView(CreateView):
     """Create a new album and store in the database."""
 
-    template_name = 'imager_images/album_create.html'
+    template_name = 'imager_images/album_form.html'
     model = Album
     form_class = AlbumForm
     success_url = 'library'
@@ -111,7 +139,7 @@ class AlbumCreateView(CreateView):
         """Redirect to home if not logged in otherwise display library."""
         if self.request.user.get_username() == '':
             return redirect('home')
-        return super(LibraryView, self).post(*args, **kwargs)
+        return super(AlbumCreateView, self).post(*args, **kwargs)
 
     def get_form_kwargs(self):
         """Update the kwargs to include the current user's username."""
