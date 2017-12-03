@@ -115,8 +115,11 @@
 
         </div>
     </div>
-    <a href="{% url 'album_create' %}" class="btn btn-primary btn-lg btn-block login-button col-4 mt-4 mx-auto" role="button">
+    {% if owner %}
+        
+    <a href="{% url 'profile_edit' %}" class="btn btn-primary btn-lg btn-block login-button col-4 mt-4 mx-auto" role="button">
         Edit Profile
     </a>
+    {% endif %}
 </div>
 {% endblock %}
