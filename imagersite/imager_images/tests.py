@@ -103,12 +103,12 @@ class PhotoAlbumTests(TestCase):
     def test_photo_to_string_is_correct(self):
         """Test that the __str__ method returns the photo title."""
         one_photo = Photo.objects.get(title='wedding')
-        self.assertEqual(str(one_photo), 'Photo: wedding')
+        self.assertEqual(str(one_photo), 'wedding')
 
     def test_album_to_string_is_correct(self):
         """Test that the __str__ method returns the album title."""
         one_album = Album.objects.get(title='first')
-        self.assertEqual(str(one_album), 'Album: first')
+        self.assertEqual(str(one_album), 'first')
 
     def test_all_photos_are_added_to_the_database(self):
         """Test that all created photos are added to the database."""
@@ -300,90 +300,97 @@ class PhotoAlbumViewTests(TestCase):
 
     def test_library_view_redirects_home_not_logged_in(self):
         """Test that library_view redirects home if not logged in."""
-        from imager_images.views import library_view
+        from imager_images.views import LibraryView
         request = self.request.get('')
         request.user = AnonymousUser()
-        response = library_view(request)
-        self.assertEquals(response.status_code, 302)
+        view = LibraryView(request=request)
+        response = view.get()
+        self.assertEqual(response.status_code, 302)
 
     def test_library_view_logged_in_displays_all_photos_and_albums(self):
         """Test that library_view displays all logged in user's things."""
-        from imager_images.views import library_view
+        from imager_images.views import LibraryView
         request = self.request.get('')
         request.user = self.bob
-        response = library_view(request)
+        view = LibraryView(request=request)
+        response = view.get(request)
+        response.render()
         image_count = response.content.count(b'<img')
-        self.assertEquals(image_count, 17)
+        self.assertEqual(image_count, 17)
 
-    def test_photo_gallery_view_has_all_public_photos(self):
-        """Test that the photo_gallery_view has all public photos."""
-        from imager_images.views import photo_gallery_view
+    def test_library_view_get_queryset_list_all_users_albums(self):
+        """Test library view get queryset list all users albums."""
+        from imager_images.views import LibraryView
+        view = LibraryView()
+        albums = view.get_queryset(self.bob)
+        self.assertEqual(albums.count(), 2)
+
+    def test_library_view_logged_in_context_has_all_photos_and_albums(self):
+        """Test libraryview returns context data with all logged in user's photos and albums."""
+        from imager_images.views import LibraryView
         request = self.request.get('')
-        request.user = AnonymousUser()
-        response = photo_gallery_view(request)
-        image_count = response.content.count(b'<img')
-        self.assertEquals(image_count, 23)
+        request.user = self.bob
+        view = LibraryView(request=request, object_list='')
+        data = view.get_context_data()
+        self.assertEqual(data['albums'].count(), 2)
+        self.assertEqual(data['photos'].count(), 15)
+        self.assertIn('default_cover', data)
 
     def test_album_gallery_view_has_all_public_albums(self):
         """Test that the album_gallery_view has all public albums."""
-        from imager_images.views import album_gallery_view
-        request = self.request.get('')
-        request.user = AnonymousUser()
-        response = album_gallery_view(request)
-        image_count = response.content.count(b'<img')
-        self.assertEquals(image_count, 2)
-
-    def test_photo_detail_view_invalid_id_raises_404(self):
-        """Test that an invalid id for photo_detail_view raises a 404."""
-        from imager_images.views import photo_detail_view
-        request = self.request.get('')
-        request.user = AnonymousUser()
-        with self.assertRaises(Http404):
-            photo_detail_view(request, '1000000000')
+        from imager_images.views import AlbumGalleryView
+        view = AlbumGalleryView(object_list='')
+        data = view.get_context_data()
+        self.assertIn('albums', data)
+        self.assertIn('default_cover', data)
 
     def test_photo_detail_view_non_public_photo_raises_404(self):
         """Test that a non public photo for photo_detail_view raises a 404."""
-        from imager_images.views import photo_detail_view
+        from imager_images.views import PhotoDetailView
         photo = Photo.objects.filter(published='PRIVATE').first()
         request = self.request.get('')
         request.user = AnonymousUser()
+        view = PhotoDetailView(request=request, kwargs={'id': photo.id})
         with self.assertRaises(Http404):
-            photo_detail_view(request, photo.id)
+            view.get_object()
 
     def test_photo_detail_view_valid_id_gets_correct_photo(self):
         """Test that photo_detail_view for valid id has correct photo."""
-        from imager_images.views import photo_detail_view
+        from imager_images.views import PhotoDetailView
         photo = Photo.objects.filter(published='PUBLIC').first()
         request = self.request.get('')
         request.user = AnonymousUser()
-        response = photo_detail_view(request, photo.id)
-        self.assertIn(photo.title.encode('utf8'), response.content)
-
-    def test_album_detail_view_invalid_id_raises_404(self):
-        """Test that an invalid id for album_detail_view raises a 404."""
-        from imager_images.views import album_detail_view
-        request = self.request.get('')
-        request.user = AnonymousUser()
-        with self.assertRaises(Http404):
-            album_detail_view(request, '1000000000')
+        view = PhotoDetailView(request=request, kwargs={'id': photo.id})
+        response = view.get_object()
+        self.assertEqual(response.image, photo.image)
 
     def test_album_detail_view_non_public_album_raises_404(self):
         """Test that a non public album for album_detail_view raises a 404."""
-        from imager_images.views import album_detail_view
+        from imager_images.views import AlbumDetailView
         album = Album.objects.filter(published='PRIVATE').first()
         request = self.request.get('')
         request.user = AnonymousUser()
+        view = AlbumDetailView(request=request, kwargs={'id': album.id})
         with self.assertRaises(Http404):
-            album_detail_view(request, album.id)
+            view.get_object()
 
     def test_album_detail_view_valid_id_gets_correct_album(self):
         """Test that album_detail_view for valid id has correct album."""
-        from imager_images.views import album_detail_view
+        from imager_images.views import AlbumDetailView
         album = Album.objects.filter(published='PUBLIC').first()
         request = self.request.get('')
         request.user = AnonymousUser()
-        response = album_detail_view(request, album.id)
-        self.assertIn(album.title.encode('utf8'), response.content)
+        view = AlbumDetailView(request=request, kwargs={'id': album.id})
+        response = view.get_object()
+        self.assertEqual(response.photos, album.photos)
+
+    def test_album_detail_view_has_album(self):
+        """Test that the album detail_view has album."""
+        from imager_images.views import AlbumDetailView
+        view = AlbumDetailView(object='')
+        data = view.get_context_data()
+        self.assertIn('view', data)
+        self.assertIn('default_cover', data)
 
 
 class PhotoAlbumRouteTests(TestCase):
@@ -455,7 +462,7 @@ class PhotoAlbumRouteTests(TestCase):
     def test_library_route_not_logged_in_gets_302(self):
         """Test that library route gets 302 status code if not logged in."""
         response = self.client.get(reverse_lazy('library'))
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
     def test_library_route_redirects_home_not_logged_in(self):
         """Test that library route redirects home if not logged in."""
@@ -467,30 +474,30 @@ class PhotoAlbumRouteTests(TestCase):
         self.client.login(username='bob', password='password')
         response = self.client.get(reverse_lazy('library'))
         image_count = response.content.count(b'<img')
-        self.assertEquals(image_count, 17)
+        self.assertEqual(image_count, 17)
 
     def test_photo_gallery_route_has_all_public_photos(self):
         """Test that the photo gallery route has all public photos."""
         response = self.client.get(reverse_lazy('photo_gallery'))
         image_count = response.content.count(b'<img')
-        self.assertEquals(image_count, 23)
+        self.assertEqual(image_count, 23)
 
     def test_album_gallery_route_has_all_public_albums(self):
         """Test that the album gallery route has all public albums."""
         response = self.client.get(reverse_lazy('album_gallery'))
         image_count = response.content.count(b'<img')
-        self.assertEquals(image_count, 2)
+        self.assertEqual(image_count, 2)
 
     def test_photo_detail_route_invalid_id_raises_404(self):
         """Test that an invalid id for photo detail route raises a 404."""
         response = self.client.get('/images/photos/1000000000/')
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_photo_detail_route_non_public_photo_raises_404(self):
         """Test that a non public photo for photo_detail_route raises a 404."""
         photo = Photo.objects.filter(published='PRIVATE').first()
         response = self.client.get('/images/photos/{}'.format(photo.id))
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_photo_detail_route_valid_id_gets_correct_photo(self):
         """Test that photo_detail_route for valid id has correct photo."""
@@ -501,13 +508,13 @@ class PhotoAlbumRouteTests(TestCase):
     def test_album_detail_route_invalid_id_raises_404(self):
         """Test that an invalid id for album detail route raises a 404."""
         response = self.client.get('/images/albums/1000000000/')
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_album_detail_route_non_public_album_raises_404(self):
         """Test that a non public album for album_detail_route raises a 404."""
         album = Album.objects.filter(published='PRIVATE').first()
         response = self.client.get('/images/albums/{}'.format(album.id))
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_album_detail_route_valid_id_gets_correct_album(self):
         """Test that album_detail_route for valid id has correct album."""

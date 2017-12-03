@@ -222,7 +222,7 @@ nav {
 }
 
 
-.input-group input {
+.input-group input, .input-group select, .input-group textarea {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     display: -ms-flexbox;
@@ -264,15 +264,27 @@ form p {
     display: block;
 }
 
-.register-form input {
+.register-form input, .register-form select, .register-form textarea {
     width: 80%;
     display: inline-block;
+}
+
+.register-form textarea {
+    height: 5rem;
+    min-height: 2.4rem;
 }
 
 .helptext {
     display: none;
 }
 
+.register-form select {
+    height: 2.4rem;
+}
+
+.register-form select[multiple] {
+    height: auto;
+}
 
 .register-form label {
     width: 20%;

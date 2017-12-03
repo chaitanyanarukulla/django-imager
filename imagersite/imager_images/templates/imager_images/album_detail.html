@@ -4,8 +4,9 @@
 
 {% block content %}
 <h1>{{ album.title }}</h1>
-
-<p class="page-description text-center">Posted by {{ album.user.username }}</p>
+<p class="page-description text-center">
+    Posted by <a class="text-muted" href="{% url 'profile' username=album.user.username %}">{{ album.user.username }}</a>
+</p>
 
 <div class="tz-gallery row">
     <div class="col-6 album-detail mr-2">

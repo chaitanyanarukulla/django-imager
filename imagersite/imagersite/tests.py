@@ -28,26 +28,28 @@ class MainViewUnitTests(TestCase):
             os.path.join(settings.BASE_DIR, 'test_media_for_home')
         ))
 
-    def test_home_view_returns_page_with_gallery(self):
-        """Test that the home_view function returns a page with gallery."""
-        from imagersite.views import home_view
-        request = RequestFactory()
-        response = home_view(request.get(''))
-        self.assertIn(b'tz-gallery', response.content)
+    def test_home_view_returns_context_data_with_hero_image(self):
+        """Test home view returns context data with hero image."""
+        from imagersite.views import HomeView
+        view = HomeView()
+        data = view.get_context_data()
+        self.assertIn('hero_img_url', data)
+        self.assertEqual('High-Five', data['hero_img_title'])
 
     @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
                        'test_media_for_home'))
-    def test_home_view_returns_page_with_photo_from_db(self):
-        """Test that the home_view function returns photo from db."""
-        from imagersite.views import home_view
+    def test_home_view_returns_context_with_photo_from_db(self):
+        """Test that the homeview  returns photo from db."""
+        from imagersite.views import HomeView
         user = UserFactory()
         user.set_password('password')
         user.save()
         photo = PhotoFactory(user=user, title='test', published='PUBLIC')
         photo.save()
-        request = RequestFactory()
-        response = home_view(request.get(''))
-        self.assertIn(b'alt="test"', response.content)
+        view = HomeView()
+        data = view.get_context_data()
+        self.assertIn('hero_img_url', data)
+        self.assertEqual('test', data['hero_img_title'])
 
 
 class MainRoutingTests(TestCase):

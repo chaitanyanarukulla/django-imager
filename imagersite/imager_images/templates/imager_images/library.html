@@ -6,7 +6,12 @@
 <h1>Library</h1>
 
 <div class="tz-gallery-grid">
-<h2>Albums</h2>
+<h2 class="row">
+    <span class="col-4">Albums</span>
+    <a href="{% url 'album_create' %}" class="btn btn-primary btn-lg btn-block login-button col-4" role="button">
+        Add New Album
+    </a>
+</h2>
 
     <div class="row">
     {% for album in albums %}
@@ -32,7 +37,12 @@
 </div>
 
 <div class="tz-gallery">
-<h2>Photos</h2>
+<h2 class="row">
+    <span class="col-4">Photos</span>
+    <a href="{% url 'photo_create' %}" class="btn btn-primary btn-lg btn-block login-button col-4" role="button">
+        Add New Photo
+    </a>
+</h2>
 <div class="row">
     {% for photo in photos %}
 
