@@ -68,13 +68,13 @@ nav {
     padding: 2px;
 }
 
-.tz-gallery .lightbox img {
+.tz-gallery div .lightbox img {
     width: 100%;
     border-radius: 0;
     position: relative;
 }
 
-.tz-gallery .lightbox:before {
+.tz-gallery div .lightbox:before {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -89,7 +89,7 @@ nav {
 }
 
 
-.tz-gallery .lightbox:after {
+.tz-gallery div .lightbox:after {
     position: absolute;
     top: 0;
     left: 0;
@@ -101,8 +101,8 @@ nav {
     transition: 0.4s;
 }
 
-.tz-gallery .lightbox:hover:after,
-.tz-gallery .lightbox:hover:before {
+.tz-gallery div .lightbox:hover:after,
+.tz-gallery div .lightbox:hover:before {
     opacity: 1;
 }
 
@@ -137,6 +137,18 @@ nav {
     body {
         padding: 0;
     }
+}
+
+
+.edit-button {
+    bottom: 1rem;
+    right: 1rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-color: #96c7ea;
+}
+
+.edit-button:hover {
+    background-color: #96c7ea;
 }
 
 
@@ -250,6 +262,11 @@ nav {
     background-color: #96c7ea;
     border-color: transparent;
     color: #000;
+}
+
+#id_image {
+    margin-left: 20%;
+    border-radius: 0 .25rem .25rem;
 }
 
 .register-form {
