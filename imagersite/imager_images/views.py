@@ -116,8 +116,6 @@ class PhotoCreateView(CreateView):
     def form_valid(self, form):
         """Assign user as creater of photo."""
         form.instance.user = self.request.user
-        if form.instance.published == 'PUBLIC':
-            form.instance.date_published = timezone.now()
         return super(PhotoCreateView, self).form_valid(form)
 
 
@@ -150,6 +148,4 @@ class AlbumCreateView(CreateView):
     def form_valid(self, form):
         """Assign user as creater of album."""
         form.instance.user = self.request.user
-        if form.instance.published == 'PUBLIC':
-            form.instance.date_published = timezone.now()
         return super(AlbumCreateView, self).form_valid(form)

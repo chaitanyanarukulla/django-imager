@@ -2,6 +2,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.forms import ModelForm
+from django.dispatch import receiver
+from django.utils import timezone
 from sorl.thumbnail import ImageField
 
 
@@ -27,6 +29,14 @@ class Photo(models.Model):
         return self.title
 
 
+@receiver(models.signals.post_save, sender=Photo)
+def set_photo_published_date(sender, instance, **kwargs):
+    """Update the date published if published."""
+    if instance.published == 'PUBLIC' and not instance.date_published:
+        instance.date_published = timezone.now()
+        instance.save()
+
+
 class Album(models.Model):
     """Album of Photos created by the User."""
 
@@ -49,6 +59,14 @@ class Album(models.Model):
     def __str__(self):
         """The string from of the album."""
         return self.title
+
+
+@receiver(models.signals.post_save, sender=Album)
+def set_album_published_date(sender, instance, **kwargs):
+    """Update the date published if published."""
+    if instance.published == 'PUBLIC' and not instance.date_published:
+        instance.date_published = timezone.now()
+        instance.save()
 
 
 class AlbumForm(ModelForm):
