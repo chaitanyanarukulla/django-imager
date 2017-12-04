@@ -2,7 +2,6 @@
 from django.shortcuts import redirect
 from django.conf import settings
 from django.http import Http404
-from django.utils import timezone
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from imager_images.models import Album, AlbumForm, Photo
 
@@ -116,8 +115,6 @@ class PhotoCreateView(CreateView):
     def form_valid(self, form):
         """Assign user as creater of photo."""
         form.instance.user = self.request.user
-        if form.instance.published == 'PUBLIC':
-            form.instance.date_published = timezone.now()
         return super(PhotoCreateView, self).form_valid(form)
 
 
@@ -150,8 +147,6 @@ class AlbumCreateView(CreateView):
     def form_valid(self, form):
         """Assign user as creater of album."""
         form.instance.user = self.request.user
-        if form.instance.published == 'PUBLIC':
-            form.instance.date_published = timezone.now()
         return super(AlbumCreateView, self).form_valid(form)
 
 
@@ -182,12 +177,6 @@ class AlbumEditView(UpdateView):
         kwargs.update({'username': self.request.user.username})
         return kwargs
 
-    def form_valid(self, form):
-        """Assign user as creater of album."""
-        if form.instance.published == 'PUBLIC' and not form.instance.date_published:
-            form.instance.date_published = timezone.now()
-        return super(AlbumEditView, self).form_valid(form)
-
 
 class PhotoEditView(UpdateView):
     """Edit a new photo and store in the database."""
@@ -209,9 +198,3 @@ class PhotoEditView(UpdateView):
         if self.request.user.get_username() == '':
             return redirect('home')
         return super(PhotoEditView, self).post(*args, **kwargs)
-
-    def form_valid(self, form):
-        """Assign user as Edit of photo."""
-        if form.instance.published == 'PUBLIC' and not form.instance.date_published:
-            form.instance.date_published = timezone.now()
-        return super(PhotoEditView, self).form_valid(form)

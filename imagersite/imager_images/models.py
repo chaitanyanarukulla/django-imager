@@ -1,14 +1,16 @@
 """Photo and Album models created by a User."""
 from django.db import models
+from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.forms import ModelForm
+from django.utils import timezone
 from sorl.thumbnail import ImageField
 
 
 class Photo(models.Model):
     """Photo uploaded by a User."""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='photos')
     image = ImageField(upload_to='images')
     title = models.CharField(max_length=180, blank=True, default='Untitled')
     description = models.TextField(blank=True, null=True)
@@ -27,11 +29,19 @@ class Photo(models.Model):
         return self.title
 
 
+@receiver(models.signals.post_save, sender=Photo)
+def set_photo_published_date(sender, instance, **kwargs):
+    """Update the date published if published."""
+    if instance.published == 'PUBLIC' and not instance.date_published:
+        instance.date_published = timezone.now()
+        instance.save()
+
+
 class Album(models.Model):
     """Album of Photos created by the User."""
 
     # objects = models.ModelManager()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='albums')
     photos = models.ManyToManyField(Photo, related_name='albums')
     title = models.CharField(max_length=180, blank=True, default='Untitled')
     cover = models.ForeignKey(Photo, blank=True, null=True, related_name='+')
@@ -49,6 +59,14 @@ class Album(models.Model):
     def __str__(self):
         """The string from of the album."""
         return self.title
+
+
+@receiver(models.signals.post_save, sender=Album)
+def set_album_published_date(sender, instance, **kwargs):
+    """Update the date published if published."""
+    if instance.published == 'PUBLIC' and not instance.date_published:
+        instance.date_published = timezone.now()
+        instance.save()
 
 
 class AlbumForm(ModelForm):

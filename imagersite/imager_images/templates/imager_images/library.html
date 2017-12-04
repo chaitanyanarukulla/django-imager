@@ -56,7 +56,10 @@
                     {% endthumbnail %}
                 </a>
             </div>
-            <a href="{% url 'photo_edit' id=photo.id %}" class="btn btn-outline-primary btn-sm position-absolute edit-button">Edit</a>
+            <div class="photo-buttons position-absolute ">
+            <a href="{% url 'photo_detail' id=photo.id %}" class="btn btn-outline-primary btn-sm edit-button">Details</a>
+            <a href="{% url 'photo_edit' id=photo.id %}" class="btn btn-outline-primary btn-sm edit-button">Edit</a>
+            </div>
         </div>
     {% endfor %}
     </div>

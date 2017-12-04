@@ -68,13 +68,13 @@ nav {
     padding: 2px;
 }
 
-.tz-gallery div .lightbox img {
+.tz-gallery .lightbox img {
     width: 100%;
     border-radius: 0;
     position: relative;
 }
 
-.tz-gallery div .lightbox:before {
+.tz-gallery .lightbox:before {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -89,7 +89,7 @@ nav {
 }
 
 
-.tz-gallery div .lightbox:after {
+.tz-gallery .lightbox:after {
     position: absolute;
     top: 0;
     left: 0;
@@ -101,8 +101,8 @@ nav {
     transition: 0.4s;
 }
 
-.tz-gallery div .lightbox:hover:after,
-.tz-gallery div .lightbox:hover:before {
+.tz-gallery .lightbox:hover:after,
+.tz-gallery .lightbox:hover:before {
     opacity: 1;
 }
 
@@ -139,10 +139,13 @@ nav {
     }
 }
 
-
-.edit-button {
+.photo-buttons {
     bottom: 1rem;
     right: 1rem;
+}
+
+
+.edit-button {
     background-color: rgba(255, 255, 255, 0.8);
     border-color: #96c7ea;
 }
@@ -265,8 +268,11 @@ nav {
 }
 
 #id_image {
-    margin-left: 20%;
     border-radius: 0 .25rem .25rem;
+}
+
+.edit-photo #id_image {
+    margin-left: 20%;
 }
 
 .register-form {
@@ -320,3 +326,33 @@ form p {
     border-right: 0;
     white-space: nowrap;
 }
+
+.register-form ul {
+    padding-left: 0;
+}
+
+.register-form ul li {
+    border-left: 1px solid #ced4da;
+    border-right: 1px solid #ced4da;
+    margin-left: 20%;
+}
+
+.register-form ul li:first-child {
+    border-top: 1px solid #ced4da;
+    border-radius: 0 .25rem 0 0;
+}
+
+.register-form ul li:last-child {
+    border-bottom: 1px solid #ced4da;
+    border-radius: 0 0 .25rem 0;
+}
+
+.register-form ul label{
+    float: none;
+    display: block;
+    background-color: transparent;
+    border: none;
+    width: 3rem;
+}
+
+
