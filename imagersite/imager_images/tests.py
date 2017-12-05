@@ -2,13 +2,12 @@
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.forms.models import modelform_factory
 from django.http import Http404
 from django.test import override_settings, RequestFactory, TestCase
 from django.urls import reverse_lazy
-from imager_images.models import Photo, Album
-from imager_profile.models import User
+from imager_images.models import Photo, Album, AlbumForm
 from imager_profile.tests import UserFactory
-
 from datetime import datetime
 import factory
 import os
@@ -64,6 +63,7 @@ class PhotoAlbumTests(TestCase):
         user = UserFactory()
         user.set_password(factory.Faker('password'))
         user.save()
+        cls.user = user
 
         photo = PhotoFactory(title='wedding', description='lovely wedding',
                              published='PRIVATE', user=user)
@@ -92,6 +92,15 @@ class PhotoAlbumTests(TestCase):
             album1.photos.add(photo)
             album2.photos.add(photo)
 
+        user = UserFactory()
+        user.set_password(factory.Faker('password'))
+        user.save()
+        photo = PhotoFactory(title='sport', user=user)
+        photo.save()
+
+        album1 = AlbumFactory(title='sports', user=user)
+        album1.save()
+
     @classmethod
     def tearDownClass(cls):
         """Remove the test directory."""
@@ -112,7 +121,7 @@ class PhotoAlbumTests(TestCase):
 
     def test_all_photos_are_added_to_the_database(self):
         """Test that all created photos are added to the database."""
-        self.assertEqual(Photo.objects.count(), 36)
+        self.assertEqual(Photo.objects.count(), 37)
 
     @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
                                                "test_media_for_photos"))
@@ -120,7 +129,7 @@ class PhotoAlbumTests(TestCase):
         """Test that all created photos are added to the media directory."""
         path = os.path.join(settings.MEDIA_ROOT, 'images')
         files = [name for name in os.listdir(path) if name.endswith('.jpg')]
-        self.assertEqual(len(files), 36)
+        self.assertEqual(len(files), 37)
 
     def test_photos_are_added_to_an_album(self):
         """Test that all created photos are added to the database."""
@@ -130,8 +139,7 @@ class PhotoAlbumTests(TestCase):
     def test_photo_has_user(self):
         """Test that the photo has a user."""
         one_photo = Photo.objects.get(title='wedding')
-        one_user = User.objects.first()
-        self.assertEqual(one_photo.user, one_user)
+        self.assertEqual(one_photo.user, self.user)
 
     def test_photo_has_description(self):
         """Test that the photo has a description."""
@@ -171,20 +179,25 @@ class PhotoAlbumTests(TestCase):
         self.assertEqual(photo.date_uploaded, created_upload_date)
         self.assertNotEqual(photo.date_modified, created_modify_date)
 
-    def test_photo_has_date_published(self):
-        """Test that the photo has a date-published that is None by default."""
+    def test_private_photo_has_no_date_published(self):
+        """Test that private photo has  date-published that is None."""
         one_photo = Photo.objects.get(title='wedding')
         self.assertIsNone(one_photo.date_published)
 
+    def test_public_photo_has_date_published(self):
+        """Test that public photo has a date-published."""
+        one_photo = Photo.objects.filter(albums__title='second').first()
+        now = datetime.now().strftime('%x %X')[:2]
+        self.assertEqual(one_photo.date_published.strftime('%x %X')[:2], now)
+
     def test_all_albums_are_added_to_the_database(self):
         """Test that all created albums are added to the database."""
-        self.assertEqual(Album.objects.count(), 2)
+        self.assertEqual(Album.objects.count(), 3)
 
     def test_album_has_user(self):
         """Test that the album has a user."""
         one_album = Album.objects.get(title='first')
-        one_user = User.objects.first()
-        self.assertEqual(one_album.user, one_user)
+        self.assertEqual(one_album.user, self.user)
 
     def test_album_has_description(self):
         """Test that the album has a description."""
@@ -224,10 +237,21 @@ class PhotoAlbumTests(TestCase):
         self.assertEqual(album.date_uploaded, created_upload_date)
         self.assertNotEqual(album.date_modified, created_modify_date)
 
-    def test_album_has_date_published(self):
-        """Test that the album has a date-published that is None by default."""
+    def test_private_album_has_no_date_published(self):
+        """Test that private album has a date-published that is None."""
         one_album = Album.objects.get(title='first')
         self.assertIsNone(one_album.date_published)
+
+    def test_public_album_has_date_published(self):
+        """Test that public album has a date-published."""
+        one_album = Album.objects.get(title='second')
+        now = datetime.now().strftime('%x %X')[:2]
+        self.assertEqual(one_album.date_published.strftime('%x %X')[:2], now)
+
+    def test_album_form_photos_are_limited_to_current_users(self):
+        """Test album form photos are limited to current users."""
+        form = AlbumForm(username=self.user.username)
+        self.assertEqual(form.fields['photos'].queryset.count(), 36)
 
 
 class PhotoAlbumViewTests(TestCase):
@@ -392,6 +416,148 @@ class PhotoAlbumViewTests(TestCase):
         self.assertIn('view', data)
         self.assertIn('default_cover', data)
 
+    def test_photo_create_view_get_redirect_home_not_loggedin(self):
+        """Test that photo create view redirects home if not logged in."""
+        from imager_images.views import PhotoCreateView
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        view = PhotoCreateView(request=request)
+        response = view.get()
+        self.assertEqual(response.status_code, 302)
+
+    def test_photo_create_view_logged_in_has_upload_form(self):
+        """Test that photo create view  has upload form."""
+        from imager_images.views import PhotoCreateView
+        request = self.request.get('')
+        request.user = self.bob
+        view = PhotoCreateView(request=request)
+        response = view.get(request)
+        response.render()
+        self.assertIn(b'Upload New Photo', response.content)
+
+    def test_photo_create_view_post_redirect_home_not_loggedin(self):
+        """Test that photo create view post redirects home if not logged in."""
+        from imager_images.views import PhotoCreateView
+        request = self.request.post('')
+        request.user = AnonymousUser()
+        view = PhotoCreateView(request=request)
+        response = view.post()
+        self.assertEqual(response.status_code, 302)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_view"))
+    def test_photo_create_view_post_logged_in_create_new_photo(self):
+        """Test that photo create view post login creates new photo."""
+        from imager_images.views import PhotoCreateView
+        request = self.request.post('')
+        request.user = self.bob
+        request.POST = {'title': 'test', 'description': 'testing', 'published': 'PRIVATE'}
+        image = SimpleUploadedFile(
+            name='sample_img.jpg',
+            content=open(
+                os.path.join(settings.BASE_DIR, 'static/test_image.jpg'), 'rb'
+            ).read(),
+            content_type="image/jpeg"
+        )
+        request._files = {'image': image}
+        view = PhotoCreateView(request=request)
+        view.post(request)
+        photo = Photo.objects.get(title='test')
+        self.assertIsNotNone(photo)
+        self.assertEqual(photo.description, 'testing')
+
+    def test_photo_create_view_form_valid_sets_current_user_as_user(self):
+        """Test photo create view form valid sets current user as user."""
+        from imager_images.views import PhotoCreateView
+        form_class = modelform_factory(Photo, fields=['title', 'description',
+                                                      'image', 'published'])
+        request = self.request.post('')
+        request.user = self.bob
+        view = PhotoCreateView(request=request)
+        image = SimpleUploadedFile(
+            name='sample_img.jpg',
+            content=open(
+                os.path.join(settings.BASE_DIR, 'static/test_image.jpg'), 'rb'
+            ).read(),
+            content_type="image/jpeg"
+        )
+        files = {'image': image}
+        data = {'title': 'test2', 'description': 'testing2', 'published': 'PRIVATE'}
+        form = form_class(data=data, files=files)
+        form.is_valid()
+        view.form_valid(form)
+        self.assertIs(self.bob, form.instance.user)
+
+    def test_album_create_view_get_redirect_home_not_loggedin(self):
+        """Test that album create view redirects home if not logged in."""
+        from imager_images.views import AlbumCreateView
+        request = self.request.get('')
+        request.user = AnonymousUser()
+        view = AlbumCreateView(request=request)
+        response = view.get()
+        self.assertEqual(response.status_code, 302)
+
+    def test_album_create_view_logged_in_has_upload_form(self):
+        """Test that album create view  has upload form."""
+        from imager_images.views import AlbumCreateView
+        request = self.request.get('')
+        request.user = self.bob
+        view = AlbumCreateView(request=request)
+        response = view.get(request)
+        response.render()
+        self.assertIn(b'Create New Album', response.content)
+
+    def test_album_create_view_post_redirect_home_not_loggedin(self):
+        """Test that album create view post redirects home if not logged in."""
+        from imager_images.views import AlbumCreateView
+        request = self.request.post('')
+        request.user = AnonymousUser()
+        view = AlbumCreateView(request=request)
+        response = view.post()
+        self.assertEqual(response.status_code, 302)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_view"))
+    def test_album_create_view_post_logged_in_create_new_album(self):
+        """Test that album create view post login creates new album."""
+        from imager_images.views import AlbumCreateView
+        request = self.request.post('')
+        request.user = self.bob
+        request.POST = {'title': 'test', 'description': 'testing',
+                        'photos': ['83'], 'published': 'PRIVATE', 'cover': ''}
+        view = AlbumCreateView(request=request)
+        view.post(request)
+        album = Album.objects.get(title='test')
+        self.assertIsNotNone(album)
+        self.assertEqual(album.description, 'testing')
+
+    def test_album_create_view_form_valid_sets_current_user_as_user(self):
+        """Test album create view form valid sets current user as user."""
+        from imager_images.views import AlbumCreateView
+        form_class = modelform_factory(
+            Album,
+            fields=['title', 'description', 'photos', 'cover', 'published']
+        )
+        request = self.request.post('')
+        request.user = self.bob
+        view = AlbumCreateView(request=request)
+        data = {'title': 'test', 'description': 'testing',
+                         'photos': ['86'], 'published': 'PRIVATE', 'cover': ''}
+        form = form_class(data=data)
+        form.is_valid()
+        view.form_valid(form)
+        self.assertIs(self.bob, form.instance.user)
+
+    def test_album_create_view_get_form_kwargs_assigns_current_user(self):
+        """Test album create view get form kwargs assigns current user."""
+        from imager_images.views import AlbumCreateView
+        request = self.request.get('')
+        request.user = self.bob
+        view = AlbumCreateView(request=request)
+        kwargs = view.get_form_kwargs()
+        self.assertIn('username', kwargs)
+        self.assertEqual(kwargs['username'], 'bob')
+
 
 class PhotoAlbumRouteTests(TestCase):
     """Tests for the routes of imager_images."""
@@ -521,3 +687,5 @@ class PhotoAlbumRouteTests(TestCase):
         album = Album.objects.filter(published='PUBLIC').first()
         response = self.client.get('/images/albums/{}'.format(album.id))
         self.assertIn(album.title.encode('utf8'), response.content)
+
+
