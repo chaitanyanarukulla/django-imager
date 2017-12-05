@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.http import Http404
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.urls import reverse_lazy
 from imager_images.models import Album, AlbumForm, Photo
 
 
@@ -98,7 +99,7 @@ class PhotoCreateView(CreateView):
     template_name = 'imager_images/photo_create.html'
     model = Photo
     fields = ['title', 'description', 'image', 'published']
-    success_url = 'library'
+    success_url = reverse_lazy('library')
 
     def get(self, *args, **kwargs):
         """Redirect to home if not logged in otherwise display library."""
@@ -124,7 +125,7 @@ class AlbumCreateView(CreateView):
     template_name = 'imager_images/album_create.html'
     model = Album
     form_class = AlbumForm
-    success_url = 'library'
+    success_url = reverse_lazy('library')
 
     def get(self, *args, **kwargs):
         """Redirect to home if not logged in otherwise display library."""
