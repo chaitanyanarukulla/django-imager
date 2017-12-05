@@ -5,7 +5,7 @@
 
 **Author**: Megan Flood and Chaitanya Naru
 
-**Version**: 2.0.0
+**Version**: 2.0.1
 
 ## Overview
 A simple image management website using Django.
@@ -88,6 +88,8 @@ You can test this application by first exporting an environmental variable point
 Built with Python and Django framework. Tested through Django testing suite.
 
 ## Change Log
+
+12-04-2017 7:14pm - Added tests for the photo and album create views
 
 12-02-2017 7:00pm - Added photos and albums create views
 
