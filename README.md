@@ -5,7 +5,7 @@
 
 **Author**: Megan Flood and Chaitanya Naru
 
-**Version**: 1.4.0
+**Version**: 2.0.1
 
 ## Overview
 A simple image management website using Django.
@@ -22,6 +22,8 @@ A simple image management website using Django.
 |`/images/albums`|album_gallery|gallery of all public albums|
 |`/images/photos/<id>`|photo_detail|detail of a single photo|
 |`/images/albums/<id>`|album_detail|detail of asingel album|
+|`/images/photos/add`|photos_create|upload new pictures|
+|`/images/albums/add`|photos_create|create new albums|
 |`/accounts/*`|all registration routes| included from [django-registration](http://django-registration.readthedocs.io/en/stable/index.html)|
 |`/admin/*`|all built-in admin routes| included from [Django admin](https://docs.djangoproject.com/en/1.11/ref/contrib/admin/#reversing-admin-urls)|
 
@@ -86,6 +88,10 @@ You can test this application by first exporting an environmental variable point
 Built with Python and Django framework. Tested through Django testing suite.
 
 ## Change Log
+
+12-04-2017 7:14pm - Added tests for the photo and album create views
+
+12-02-2017 7:00pm - Added photos and albums create views
 
 12-01-2017 8:37pm - Added photo, album, and profile views with tests.
 
