@@ -516,8 +516,6 @@ class PhotoAlbumViewTests(TestCase):
         response = view.post()
         self.assertEqual(response.status_code, 302)
 
-    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
-                                               "test_media_for_photo_view"))
     def test_album_create_view_post_logged_in_create_new_album(self):
         """Test that album create view post login creates new album."""
         from imager_images.views import AlbumCreateView
@@ -688,4 +686,228 @@ class PhotoAlbumRouteTests(TestCase):
         response = self.client.get('/images/albums/{}'.format(album.id))
         self.assertIn(album.title.encode('utf8'), response.content)
 
+    def test_photo_create_route_get_no_login_has_302(self):
+        """Test that photo create route get with no login has 302 code."""
+        response = self.client.get(reverse_lazy('photo_create'))
+        self.assertEqual(response.status_code, 302)
 
+    def test_photo_create_route_get_no_login_redirects_home(self):
+        """Test that photo create route get with no login redirects home."""
+        response = self.client.get(reverse_lazy('photo_create'), follow=True)
+        self.assertIn(b'<h1>Imager</h1>', response.content)
+
+    def test_photo_create_route_get_login_has_200(self):
+        """Test that photo create route get with login has 200 code."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('photo_create'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_photo_create_route_get_login_has_create_form(self):
+        """Test that photo create route get with login has create form."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('photo_create'))
+        self.assertIn(b'Upload New Photo', response.content)
+
+    def test_photo_create_route_post_no_login_has_302(self):
+        """Test that photo create route post with no login has 302 code."""
+        response = self.client.post(reverse_lazy('photo_create'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_photo_create_route_post_no_login_redirects_home(self):
+        """Test that photo create route post with no login redirects home."""
+        response = self.client.post(reverse_lazy('photo_create'), follow=True)
+        self.assertIn(b'<h1>Imager</h1>', response.content)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def test_photo_create_route_post_login_has_302(self):
+        """Test that photo create route post with login has 302 code."""
+        self.client.login(username='bob', password='password')
+        image = SimpleUploadedFile(
+            name='sample_img.jpg',
+            content=open(
+                os.path.join(settings.BASE_DIR, 'static/test_image.jpg'), 'rb'
+            ).read(),
+            content_type="image/jpeg"
+        )
+        data = {
+            'title': 'test',
+            'description': 'testing',
+            'image': image,
+            'published': 'PRIVATE'
+        }
+        response = self.client.post(reverse_lazy('photo_create'), data)
+        self.assertEqual(response.status_code, 302)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def test_photo_create_route_post_login_redirects_library(self):
+        """Test that photo create route post with login redirects library."""
+        self.client.login(username='bob', password='password')
+        image = SimpleUploadedFile(
+            name='sample_img.jpg',
+            content=open(
+                os.path.join(settings.BASE_DIR, 'static/test_image.jpg'), 'rb'
+            ).read(),
+            content_type="image/jpeg"
+        )
+        data = {
+            'title': 'test2',
+            'description': 'testing2',
+            'image': image,
+            'published': 'PRIVATE'
+        }
+        response = self.client.post(reverse_lazy('photo_create'), data, follow=True)
+        self.assertIn(b'<h1>Library</h1>', response.content)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def test_photo_create_route_post_login_creates_new_photo(self):
+        """Test that photo create route post with login creates a new photo."""
+        self.client.login(username='bob', password='password')
+        image = SimpleUploadedFile(
+            name='sample_img.jpg',
+            content=open(
+                os.path.join(settings.BASE_DIR, 'static/test_image.jpg'), 'rb'
+            ).read(),
+            content_type="image/jpeg"
+        )
+        data = {
+            'title': 'test3',
+            'description': 'testing3',
+            'image': image,
+            'published': 'PRIVATE'
+        }
+        self.client.post(reverse_lazy('photo_create'), data)
+        photo = Photo.objects.get(title='test3')
+        self.assertIsNotNone(photo)
+        self.assertEqual(photo.description, 'testing3')
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def test_photo_create_route_post_login_bad_data_has_200(self):
+        """Test that photo create route post with login has 200 code."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'title': 'test',
+            'description': 'testing',
+            'published': 'PRIVATE'
+        }
+        response = self.client.post(reverse_lazy('photo_create'), data)
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def test_photo_create_route_post_login_bad_data_has_error(self):
+        """Test that photo create route post with login has error."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'title': 'test2',
+            'description': 'testing2',
+            'published': 'PRIVATE'
+        }
+        response = self.client.post(reverse_lazy('photo_create'), data)
+        self.assertIn(b'class="errorlist"', response.content)
+
+    def test_album_create_route_get_no_login_has_302(self):
+        """Test that album create route get with no login has 302 code."""
+        response = self.client.get(reverse_lazy('album_create'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_album_create_route_get_no_login_redirects_home(self):
+        """Test that album create route get with no login redirects home."""
+        response = self.client.get(reverse_lazy('album_create'), follow=True)
+        self.assertIn(b'<h1>Imager</h1>', response.content)
+
+    def test_album_create_route_get_login_has_200(self):
+        """Test that album create route get with login has 200 code."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('album_create'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_album_create_route_get_login_has_create_form(self):
+        """Test that album create route get with login has create form."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('album_create'))
+        self.assertIn(b'Create New Album', response.content)
+
+    def test_album_create_route_post_no_login_has_302(self):
+        """Test that album create route post with no login has 302 code."""
+        response = self.client.post(reverse_lazy('album_create'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_album_create_route_post_no_login_redirects_home(self):
+        """Test that album create route post with no login redirects home."""
+        response = self.client.post(reverse_lazy('album_create'), follow=True)
+        self.assertIn(b'<h1>Imager</h1>', response.content)
+
+    def test_album_create_route_post_login_has_302(self):
+        """Test that album create route post with login has 302 code."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'title': 'test',
+            'description': 'testing',
+            'cover': '',
+            'photos': ['2'],
+            'published': 'PRIVATE'
+        }
+        response = self.client.post(reverse_lazy('album_create'), data)
+        self.assertEqual(response.status_code, 302)
+
+    def test_album_create_route_post_login_redirects_library(self):
+        """Test that album create route post with login redirects library."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'title': 'test2',
+            'description': 'testing2',
+            'cover': '',
+            'photos': ['2'],
+            'published': 'PRIVATE'
+        }
+        response = self.client.post(reverse_lazy('album_create'), data, follow=True)
+        self.assertIn(b'<h1>Library</h1>', response.content)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_album_route"))
+    def test_album_create_route_post_login_creates_new_album(self):
+        """Test that album create route post with login creates a new album."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'title': 'test3',
+            'description': 'testing3',
+            'cover': '',
+            'photos': ['2'],
+            'published': 'PRIVATE'
+        }
+        self.client.post(reverse_lazy('album_create'), data)
+        album = Album.objects.get(title='test3')
+        self.assertIsNotNone(album)
+        self.assertEqual(album.description, 'testing3')
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_album_route"))
+    def test_album_create_route_post_login_bad_data_has_200(self):
+        """Test that album create route post with login has 200 code."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'title': 'test',
+            'description': 'testing',
+            'cover': '',
+            'published': 'PRIVATE'
+        }
+        response = self.client.post(reverse_lazy('album_create'), data)
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_album_route"))
+    def test_album_create_route_post_login_bad_data_has_error(self):
+        """Test that album create route post with login has error."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'title': 'test',
+            'description': 'testing',
+            'cover': '',
+            'published': 'PRIVATE'
+        }
+        response = self.client.post(reverse_lazy('album_create'), data)
+        self.assertIn(b'class="errorlist"', response.content)
