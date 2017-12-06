@@ -329,35 +329,35 @@ class ProfileRoutingTests(TestCase):
 
     def test_profile_route_has_200_response_given_a_user_name(self):
         """Test that profile route has a 200 response code."""
-        response = self.client.get('/profile/bob')
+        response = self.client.get(reverse_lazy('profile', kwargs={'username': 'bob'}))
         self.assertEqual(response.status_code, 200)
 
     def test_profile_route_has_given_user_info(self):
         """Test that profile route has a given user info."""
-        response = self.client.get('/profile/bob')
+        response = self.client.get(reverse_lazy('profile', kwargs={'username': 'bob'}))
         self.assertIn(b'I photograph things all the time.', response.content)
 
     def test_profile_route_doesnt_have_counts_for_given_user(self):
         """Test profile route doesnt have counts for given user."""
-        response = self.client.get('/profile/bob')
+        response = self.client.get(reverse_lazy('profile', kwargs={'username': 'bob'}))
         self.assertNotIn(b'Private:', response.content)
 
     def test_profile_route_has_200_response_if_user_logged_in(self):
         """Test that profile route has a 200 response code."""
         self.client.login(username='bob', password='password')
-        response = self.client.get('/profile/')
+        response = self.client.get(reverse_lazy('profile', kwargs={'username': ''}))
         self.assertEqual(response.status_code, 200)
 
     def test_profile_route_has_logged_in_user_info(self):
         """Test that profile route has a loggedin  user info."""
         self.client.login(username='bob', password='password')
-        response = self.client.get('/profile/')
+        response = self.client.get(reverse_lazy('profile', kwargs={'username': ''}))
         self.assertIn(b'I photograph things all the time.', response.content)
 
     def test_profile_route_does_have_counts_for_loggedin_user(self):
         """Test profile route does have counts for loggedin user."""
         self.client.login(username='bob', password='password')
-        response = self.client.get('/profile/')
+        response = self.client.get(reverse_lazy('profile', kwargs={'username': ''}))
         self.assertIn(b'Private:', response.content)
 
     def test_profile_route_has_given_user_info_when_logged_in(self):
@@ -374,12 +374,12 @@ class ProfileRoutingTests(TestCase):
 
     def test_profile_route_redirets_home_not_loggedin_no_user(self):
         """Test profile route redirets home not loggedin no user."""
-        response = self.client.get('/profile/', follow=True)
+        response = self.client.get(reverse_lazy('profile', kwargs={'username': ''}), follow=True)
         self.assertIn(b'<h1>Imager</h1>', response.content)
 
     def test_profile_route_has_302_response_for_not_loggedin_no_user(self):
         """Test profile route has 302 response for not loggedin no user."""
-        response = self.client.get('/profile/')
+        response = self.client.get(reverse_lazy('profile', kwargs={'username': ''}))
         self.assertEqual(response.status_code, 302)
 
     def test_profile_edit_route_get_not_logged_in_has_302(self):
