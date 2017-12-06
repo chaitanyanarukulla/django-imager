@@ -322,15 +322,6 @@ class PhotoAlbumViewTests(TestCase):
         os.system('rm -rf {}'.format(
             os.path.join(settings.BASE_DIR, 'test_media_for_photo_view')))
 
-    def test_library_view_redirects_home_not_logged_in(self):
-        """Test that library_view redirects home if not logged in."""
-        from imager_images.views import LibraryView
-        request = self.request.get('')
-        request.user = AnonymousUser()
-        view = LibraryView(request=request)
-        response = view.get()
-        self.assertEqual(response.status_code, 302)
-
     def test_library_view_logged_in_displays_all_photos_and_albums(self):
         """Test that library_view displays all logged in user's things."""
         from imager_images.views import LibraryView
@@ -416,15 +407,6 @@ class PhotoAlbumViewTests(TestCase):
         self.assertIn('view', data)
         self.assertIn('default_cover', data)
 
-    def test_photo_create_view_get_redirect_home_not_loggedin(self):
-        """Test that photo create view redirects home if not logged in."""
-        from imager_images.views import PhotoCreateView
-        request = self.request.get('')
-        request.user = AnonymousUser()
-        view = PhotoCreateView(request=request)
-        response = view.get()
-        self.assertEqual(response.status_code, 302)
-
     def test_photo_create_view_logged_in_has_upload_form(self):
         """Test that photo create view  has upload form."""
         from imager_images.views import PhotoCreateView
@@ -434,15 +416,6 @@ class PhotoAlbumViewTests(TestCase):
         response = view.get(request)
         response.render()
         self.assertIn(b'Upload New Photo', response.content)
-
-    def test_photo_create_view_post_redirect_home_not_loggedin(self):
-        """Test that photo create view post redirects home if not logged in."""
-        from imager_images.views import PhotoCreateView
-        request = self.request.post('')
-        request.user = AnonymousUser()
-        view = PhotoCreateView(request=request)
-        response = view.post()
-        self.assertEqual(response.status_code, 302)
 
     @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
                                                "test_media_for_photo_view"))
@@ -488,15 +461,6 @@ class PhotoAlbumViewTests(TestCase):
         view.form_valid(form)
         self.assertIs(self.bob, form.instance.user)
 
-    def test_album_create_view_get_redirect_home_not_loggedin(self):
-        """Test that album create view redirects home if not logged in."""
-        from imager_images.views import AlbumCreateView
-        request = self.request.get('')
-        request.user = AnonymousUser()
-        view = AlbumCreateView(request=request)
-        response = view.get()
-        self.assertEqual(response.status_code, 302)
-
     def test_album_create_view_logged_in_has_upload_form(self):
         """Test that album create view  has upload form."""
         from imager_images.views import AlbumCreateView
@@ -506,15 +470,6 @@ class PhotoAlbumViewTests(TestCase):
         response = view.get(request)
         response.render()
         self.assertIn(b'Create New Album', response.content)
-
-    def test_album_create_view_post_redirect_home_not_loggedin(self):
-        """Test that album create view post redirects home if not logged in."""
-        from imager_images.views import AlbumCreateView
-        request = self.request.post('')
-        request.user = AnonymousUser()
-        view = AlbumCreateView(request=request)
-        response = view.post()
-        self.assertEqual(response.status_code, 302)
 
     def test_album_create_view_post_logged_in_create_new_album(self):
         """Test that album create view post login creates new album."""
@@ -532,16 +487,13 @@ class PhotoAlbumViewTests(TestCase):
     def test_album_create_view_form_valid_sets_current_user_as_user(self):
         """Test album create view form valid sets current user as user."""
         from imager_images.views import AlbumCreateView
-        form_class = modelform_factory(
-            Album,
-            fields=['title', 'description', 'photos', 'cover', 'published']
-        )
+        form_class = AlbumForm
         request = self.request.post('')
         request.user = self.bob
         view = AlbumCreateView(request=request)
         data = {'title': 'test', 'description': 'testing',
                          'photos': ['86'], 'published': 'PRIVATE', 'cover': ''}
-        form = form_class(data=data)
+        form = form_class(data=data, username=request.user.username)
         form.is_valid()
         view.form_valid(form)
         self.assertIs(self.bob, form.instance.user)
@@ -552,6 +504,16 @@ class PhotoAlbumViewTests(TestCase):
         request = self.request.get('')
         request.user = self.bob
         view = AlbumCreateView(request=request)
+        kwargs = view.get_form_kwargs()
+        self.assertIn('username', kwargs)
+        self.assertEqual(kwargs['username'], 'bob')
+
+    def test_album_edit_view_get_form_kwargs_assigns_current_user(self):
+        """Test album edit view get form kwargs assigns current user."""
+        from imager_images.views import AlbumEditView
+        request = self.request.get('')
+        request.user = self.bob
+        view = AlbumEditView(request=request)
         kwargs = view.get_form_kwargs()
         self.assertIn('username', kwargs)
         self.assertEqual(kwargs['username'], 'bob')
@@ -628,10 +590,10 @@ class PhotoAlbumRouteTests(TestCase):
         response = self.client.get(reverse_lazy('library'))
         self.assertEqual(response.status_code, 302)
 
-    def test_library_route_redirects_home_not_logged_in(self):
-        """Test that library route redirects home if not logged in."""
+    def test_library_route_redirects_login_not_logged_in(self):
+        """Test that library route redirects login if not logged in."""
         response = self.client.get(reverse_lazy('library'), follow=True)
-        self.assertIn(b'<h1>Imager</h1>', response.content)
+        self.assertIn(b'Login</h1>', response.content)
 
     def test_library_route_logged_in_displays_all_photos_and_albums(self):
         """Test that library route displays all logged in user's things."""
@@ -691,10 +653,10 @@ class PhotoAlbumRouteTests(TestCase):
         response = self.client.get(reverse_lazy('photo_create'))
         self.assertEqual(response.status_code, 302)
 
-    def test_photo_create_route_get_no_login_redirects_home(self):
-        """Test that photo create route get with no login redirects home."""
+    def test_photo_create_route_get_no_login_redirects_login(self):
+        """Test that photo create route get with no login redirects login."""
         response = self.client.get(reverse_lazy('photo_create'), follow=True)
-        self.assertIn(b'<h1>Imager</h1>', response.content)
+        self.assertIn(b'Login</h1>', response.content)
 
     def test_photo_create_route_get_login_has_200(self):
         """Test that photo create route get with login has 200 code."""
@@ -713,10 +675,10 @@ class PhotoAlbumRouteTests(TestCase):
         response = self.client.post(reverse_lazy('photo_create'))
         self.assertEqual(response.status_code, 302)
 
-    def test_photo_create_route_post_no_login_redirects_home(self):
-        """Test that photo create route post with no login redirects home."""
+    def test_photo_create_route_post_no_login_redirects_login(self):
+        """Test that photo create route post with no login redirects login."""
         response = self.client.post(reverse_lazy('photo_create'), follow=True)
-        self.assertIn(b'<h1>Imager</h1>', response.content)
+        self.assertIn(b'Login</h1>', response.content)
 
     @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
                                                "test_media_for_photo_route"))
@@ -814,10 +776,10 @@ class PhotoAlbumRouteTests(TestCase):
         response = self.client.get(reverse_lazy('album_create'))
         self.assertEqual(response.status_code, 302)
 
-    def test_album_create_route_get_no_login_redirects_home(self):
-        """Test that album create route get with no login redirects home."""
+    def test_album_create_route_get_no_login_redirects_login(self):
+        """Test that album create route get with no login redirects login."""
         response = self.client.get(reverse_lazy('album_create'), follow=True)
-        self.assertIn(b'<h1>Imager</h1>', response.content)
+        self.assertIn(b'Login</h1>', response.content)
 
     def test_album_create_route_get_login_has_200(self):
         """Test that album create route get with login has 200 code."""
@@ -836,10 +798,10 @@ class PhotoAlbumRouteTests(TestCase):
         response = self.client.post(reverse_lazy('album_create'))
         self.assertEqual(response.status_code, 302)
 
-    def test_album_create_route_post_no_login_redirects_home(self):
-        """Test that album create route post with no login redirects home."""
+    def test_album_create_route_post_no_login_redirects_login(self):
+        """Test that album create route post with no login redirects login."""
         response = self.client.post(reverse_lazy('album_create'), follow=True)
-        self.assertIn(b'<h1>Imager</h1>', response.content)
+        self.assertIn(b'Login</h1>', response.content)
 
     def test_album_create_route_post_login_has_302(self):
         """Test that album create route post with login has 302 code."""

@@ -1,22 +1,17 @@
 """."""
-from django.shortcuts import redirect
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.urls import reverse_lazy
 from imager_images.models import Album, AlbumForm, Photo
 
 
-class LibraryView(ListView):
+class LibraryView(LoginRequiredMixin, ListView):
     """Library view displays all photo and album views."""
 
     template_name = 'imager_images/library.html'
-
-    def get(self, *args, **kwargs):
-        """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-        return super(LibraryView, self).get(*args, **kwargs)
+    login_url = reverse_lazy('login')
 
     def get_queryset(self, user=None):
         """Get queryset for photos."""
@@ -93,25 +88,14 @@ class AlbumDetailView(DetailView):
         return album
 
 
-class PhotoCreateView(CreateView):
+class PhotoCreateView(LoginRequiredMixin, CreateView):
     """Create a new photo and store in the database."""
 
     template_name = 'imager_images/photo_create.html'
+    login_url = reverse_lazy('login')
     model = Photo
     fields = ['title', 'description', 'image', 'published']
     success_url = reverse_lazy('library')
-
-    def get(self, *args, **kwargs):
-        """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-        return super(PhotoCreateView, self).get(*args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-        return super(PhotoCreateView, self).post(*args, **kwargs)
 
     def form_valid(self, form):
         """Assign user as creater of photo."""
@@ -119,25 +103,14 @@ class PhotoCreateView(CreateView):
         return super(PhotoCreateView, self).form_valid(form)
 
 
-class AlbumCreateView(CreateView):
+class AlbumCreateView(LoginRequiredMixin, CreateView):
     """Create a new album and store in the database."""
 
     template_name = 'imager_images/album_create.html'
+    login_url = reverse_lazy('login')
     model = Album
     form_class = AlbumForm
     success_url = reverse_lazy('library')
-
-    def get(self, *args, **kwargs):
-        """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-        return super(AlbumCreateView, self).get(*args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-        return super(AlbumCreateView, self).post(*args, **kwargs)
 
     def get_form_kwargs(self):
         """Update the kwargs to include the current user's username."""
@@ -151,26 +124,15 @@ class AlbumCreateView(CreateView):
         return super(AlbumCreateView, self).form_valid(form)
 
 
-class AlbumEditView(UpdateView):
+class AlbumEditView(LoginRequiredMixin, UpdateView):
     """Update a existing album in the db."""
 
     template_name = 'imager_images/album_edit.html'
+    login_url = reverse_lazy('login')
     pk_url_kwarg = 'id'
     model = Album
     form_class = AlbumForm
-    success_url = 'library'
-
-    def get(self, *args, **kwargs):
-        """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-        return super(AlbumEditView, self).get(*args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-        return super(AlbumEditView, self).post(*args, **kwargs)
+    success_url = reverse_lazy('library')
 
     def get_form_kwargs(self):
         """Update the kwargs to include the current user's username."""
@@ -179,23 +141,12 @@ class AlbumEditView(UpdateView):
         return kwargs
 
 
-class PhotoEditView(UpdateView):
+class PhotoEditView(LoginRequiredMixin, UpdateView):
     """Edit a new photo and store in the database."""
 
     template_name = 'imager_images/photo_edit.html'
+    login_url = reverse_lazy('login')
     pk_url_kwarg = 'id'
     model = Photo
     fields = ['title', 'description', 'image', 'published']
-    success_url = 'library'
-
-    def get(self, *args, **kwargs):
-        """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-        return super(PhotoEditView, self).get(*args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-        return super(PhotoEditView, self).post(*args, **kwargs)
+    success_url = reverse_lazy('library')

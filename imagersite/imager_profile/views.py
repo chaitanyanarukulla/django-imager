@@ -1,6 +1,8 @@
 """View functions for the profile page."""
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.views.generic import DetailView, UpdateView
+from django.urls import reverse_lazy
 from imager_profile.models import ImagerProfile, ImagerProfileForm
 from imager_images.models import Album, Photo
 
@@ -54,7 +56,7 @@ class ProfileView(DetailView):
         return context
 
 
-class ProfileEditView(UpdateView):
+class ProfileEditView(LoginRequiredMixin, UpdateView):
     """Edit a new photo and store in the database."""
 
     template_name = 'imager_profile/profile_edit.html'
@@ -63,6 +65,7 @@ class ProfileEditView(UpdateView):
     slug_url_kwarg = 'username'
     form_class = ImagerProfileForm
     success_url = '/profile/'
+    login_url = reverse_lazy('login')
 
     def get_form_kwargs(self):
         """Update the kwargs to include the current user's username."""
@@ -72,20 +75,12 @@ class ProfileEditView(UpdateView):
 
     def get(self, *args, **kwargs):
         """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-
         self.kwargs['username'] = self.request.user.get_username()
-
         return super(ProfileEditView, self).get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
         """Redirect to home if not logged in otherwise display library."""
-        if self.request.user.get_username() == '':
-            return redirect('home')
-
         self.kwargs['username'] = self.request.user.get_username()
-
         return super(ProfileEditView, self).post(*args, **kwargs)
 
     def form_valid(self, form):

@@ -1,9 +1,8 @@
 """Tests for the ImagerProfile models."""
 from django.contrib.auth.models import AnonymousUser
-from django.http import Http404
 from django.test import TestCase, RequestFactory
 from faker import Faker
-from imager_profile.models import ImagerProfile, User
+from imager_profile.models import ImagerProfile, ImagerProfileForm, User
 
 import factory
 import random
@@ -44,7 +43,10 @@ class ProfileTests(TestCase):
         super(ProfileTests, cls).setUpClass()
         user = UserFactory(username='bob', email='bob@bob.net')
         user.set_password('password')
+        user.first_name = 'Bob'
+        user.last_name = 'Ross'
         user.save()
+        cls.bob = user
         fillout_profile(user.profile,
                         website='www.fun.net',
                         location='nowhere',
@@ -142,6 +144,20 @@ class ProfileTests(TestCase):
         """Test that all users were added to the database."""
         self.assertEquals(User.objects.count(), 12)
 
+    def test_profile_form_has_user_fields(self):
+        """Test profile form has user fields."""
+        form = ImagerProfileForm(username=self.bob.username)
+        self.assertIn('email', form.fields)
+        self.assertIn('first_name', form.fields)
+        self.assertIn('last_name', form.fields)
+
+    def test_profile_form_has_user_fields_filled_from_user(self):
+        """Test profile form has user fields."""
+        form = ImagerProfileForm(username=self.bob.username)
+        self.assertEqual(self.bob.email, form.fields['email'].initial)
+        self.assertEqual(self.bob.first_name, form.fields['first_name'].initial)
+        self.assertEqual(self.bob.last_name, form.fields['last_name'].initial)
+
 
 """Tests for the Profile routes."""
 
@@ -226,6 +242,57 @@ class ProfileViewUnitTests(TestCase):
         self.assertIn('photos', data)
         self.assertIn('albums', data)
         self.assertFalse(data['owner'])
+
+    def test_profile_edit_view_get_form_kwargs_assigns_current_user(self):
+        """Test profile editview get form kwargs assigns current user."""
+        from imager_profile.views import ProfileEditView
+        request = self.request.get('')
+        request.user = self.bob
+        view = ProfileEditView(request=request)
+        kwargs = view.get_form_kwargs()
+        self.assertIn('username', kwargs)
+        self.assertEqual(kwargs['username'], 'bob')
+
+    def test_profile_edit_view_get_assigns_current_user(self):
+        """Test profile editview get assigns current user."""
+        from imager_profile.views import ProfileEditView
+        request = self.request.get('')
+        request.user = self.bob
+        view = ProfileEditView(request=request, kwargs={})
+        view.get(request)
+        self.assertIn('username', view.kwargs)
+        self.assertEqual(view.kwargs['username'], 'bob')
+
+    def test_profile_edit_view_post_assigns_current_user(self):
+        """Test profile editview post assigns current user."""
+        from imager_profile.views import ProfileEditView
+        request = self.request.post('')
+        request.user = self.bob
+        view = ProfileEditView(request=request, kwargs={})
+        view.post(request)
+        self.assertIn('username', view.kwargs)
+        self.assertEqual(view.kwargs['username'], 'bob')
+
+    def test_profile_edit_view_form_valid_update_current_user_object(self):
+        """Test profile edit view form valid update current user object."""
+        from imager_profile.views import ProfileEditView
+        form_class = ImagerProfileForm
+        request = self.request.post('')
+        request.user = self.bob
+        view = ProfileEditView(request=request)
+        data = {'email': 'test@gmail.com', 'first_name': 'Rob',
+                'last_name': 'Boss', 'camers': 'SLR', 'bio': '',
+                'website': 'www.robBoss.com', 'phone': '',
+                'location': '', 'fee': '20', 'services': '', 'photostyles': ''}
+        profile = ImagerProfile.objects.get(user=request.user)
+        form = form_class(data=data, username=request.user.username, instance=profile)
+        form.is_valid()
+        view.form_valid(form)
+        updated_bob = User.objects.first()
+        self.assertEqual(updated_bob.email, 'test@gmail.com')
+        self.assertEqual(updated_bob.first_name, 'Rob')
+        self.assertEqual(updated_bob.last_name, 'Boss')
+        self.assertEqual(updated_bob.profile.fee, 20)
 
 
 class ProfileRoutingTests(TestCase):
