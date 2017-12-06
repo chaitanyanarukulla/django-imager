@@ -1,8 +1,10 @@
 """Profile for an User."""
+from django import forms
 from django.db import models
 from django.contrib.auth.models import User
-from multiselectfield import MultiSelectField
 from django.dispatch import receiver
+from django.forms import ModelForm
+from multiselectfield import MultiSelectField
 
 
 class ImagerProfile(models.Model):
@@ -52,3 +54,32 @@ def create_profile(sender, **kwargs):
     if kwargs['created']:
         profile = ImagerProfile(user=kwargs['instance'])
         profile.save()
+
+
+class ImagerProfileForm(ModelForm):
+    """Form for an ImagerProfile."""
+
+    email = forms.CharField(max_length=User._meta.get_field('email').max_length,
+                            widget=forms.widgets.EmailInput())
+
+    first_name = forms.CharField(max_length=User._meta.get_field('first_name').max_length,
+                                 required=False)
+
+    last_name = forms.CharField(max_length=User._meta.get_field('first_name').max_length,
+                                required=False)
+
+    class Meta:
+        """Meta."""
+
+        model = ImagerProfile
+        fields = ['first_name', 'last_name', 'camera', 'bio', 'email',
+                  'website', 'phone', 'location', 'fee', 'services',
+                  'photostyles']
+
+    def __init__(self, *args, **kwargs):
+        """Limit photos to only those by the user."""
+        username = kwargs.pop('username')
+        super(ImagerProfileForm, self).__init__(*args, **kwargs)
+        self.fields['email'].initial = User.objects.get(username=username).email
+        self.fields['first_name'].initial = User.objects.get(username=username).first_name
+        self.fields['last_name'].initial = User.objects.get(username=username).last_name

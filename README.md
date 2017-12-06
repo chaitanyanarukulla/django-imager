@@ -5,7 +5,7 @@
 
 **Author**: Megan Flood and Chaitanya Naru
 
-**Version**: 2.0.1
+**Version**: 2.1.0
 
 ## Overview
 A simple image management website using Django.
@@ -17,11 +17,18 @@ A simple image management website using Django.
 |`/login`|login|GET: the login form page<br>POST: logs a user into their account, {username, password}|
 |`/logout`|logout|log out the currently logged in user|
 |`/profile/<username>`|profile|profile file for given user|
+|`/profile/edit`|profile_edit| edit the current user's profile|
 |`/images/library`|library|library os all the logged in user's albums and photos|
 |`/images/photos`|photo_gallery|gallery of all public photos|
 |`/images/albums`|album_gallery|gallery of all public albums|
 |`/images/photos/<id>`|photo_detail|detail of a single photo|
+<<<<<<< HEAD
+|`/images/albums/<id>`|album_detail|detail of a single album|
+|`/images/photos/<id>/edit`|photo_edit|edit a single photo|
+|`/images/albums/<id>/edit`|album_edit|edit a single album|
+=======
 |`/images/albums/<id>`|album_detail|detail of asingel album|
+>>>>>>> master
 |`/images/photos/add`|photos_create|upload new pictures|
 |`/images/albums/add`|photos_create|create new albums|
 |`/accounts/*`|all registration routes| included from [django-registration](http://django-registration.readthedocs.io/en/stable/index.html)|
@@ -90,6 +97,8 @@ Built with Python and Django framework. Tested through Django testing suite.
 ## Change Log
 
 12-04-2017 7:14pm - Added tests for the photo and album create views
+
+12-02-2017 9:41pm - Added photo, album, and profile update views
 
 12-02-2017 7:00pm - Added photos and albums create views
 
