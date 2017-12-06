@@ -1,6 +1,7 @@
 """Tests for the ImagerProfile models."""
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, RequestFactory
+from django.urls import reverse_lazy
 from faker import Faker
 from imager_profile.models import ImagerProfile, ImagerProfileForm, User
 
@@ -159,7 +160,7 @@ class ProfileTests(TestCase):
         self.assertEqual(self.bob.last_name, form.fields['last_name'].initial)
 
 
-"""Tests for the Profile routes."""
+"""Unit tests for the Profile view classes."""
 
 
 class ProfileViewUnitTests(TestCase):
@@ -281,7 +282,7 @@ class ProfileViewUnitTests(TestCase):
         request.user = self.bob
         view = ProfileEditView(request=request)
         data = {'email': 'test@gmail.com', 'first_name': 'Rob',
-                'last_name': 'Boss', 'camers': 'SLR', 'bio': '',
+                'last_name': 'Boss', 'camera': 'SLR', 'bio': '',
                 'website': 'www.robBoss.com', 'phone': '',
                 'location': '', 'fee': '20', 'services': '', 'photostyles': ''}
         profile = ImagerProfile.objects.get(user=request.user)
@@ -293,6 +294,9 @@ class ProfileViewUnitTests(TestCase):
         self.assertEqual(updated_bob.first_name, 'Rob')
         self.assertEqual(updated_bob.last_name, 'Boss')
         self.assertEqual(updated_bob.profile.fee, 20)
+
+
+"""Tests for the Profile routes."""
 
 
 class ProfileRoutingTests(TestCase):
@@ -377,3 +381,120 @@ class ProfileRoutingTests(TestCase):
         """Test profile route has 302 response for not loggedin no user."""
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 302)
+
+    def test_profile_edit_route_get_not_logged_in_has_302(self):
+        """Test get to profile edit route when not logged in has 302 code."""
+        response = self.client.get(reverse_lazy('profile_edit'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_edit_route_get_not_logged_in_redirects_to_login(self):
+        """Test get to profile edit route when not logged in redirects to login."""
+        response = self.client.get(reverse_lazy('profile_edit'), follow=True)
+        self.assertIn(b'Login</h1>', response.content)
+
+    def test_profile_edit_route_get_logged_in_has_200(self):
+        """Test get to profile edit route when logged in has 200 code."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('profile_edit'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_edit_route_get_logged_in_has_edit_form(self):
+        """Test get to profile edit route when logged in has edit form."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('profile_edit'))
+        self.assertIn(b'Edit Profile</h1>', response.content)
+
+    def test_profile_edit_route_post_not_logged_in_has_302(self):
+        """Test post to profile edit route when not logged in has 302 code."""
+        response = self.client.post(reverse_lazy('profile_edit'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_edit_route_post_not_logged_in_redirects_to_login(self):
+        """Test post to profile edit route when not logged in redirects to login."""
+        response = self.client.post(reverse_lazy('profile_edit'), follow=True)
+        self.assertIn(b'Login</h1>', response.content)
+
+    def test_profile_edit_route_post_logged_in_has_302(self):
+        """Test post to profile edit route when logged in has 302 code."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'email': 'notatest@gmail.com',
+            'first_name': '',
+            'last_name': '',
+        }
+        response = self.client.post(reverse_lazy('profile_edit'), data)
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_edit_route_post_logged_in_updates_the_users_profile(self):
+        """Test profile edit route post logged in updates the users profile."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'email': 'test@hotmail.com',
+            'first_name': 'Dan',
+            'last_name': 'Theman',
+            'camera': 'SLR',
+            'bio': 'I am not bob or rob.',
+            'website': 'www.theman.gov',
+            'phone': '222-3222',
+            'location': 'top of the world',
+            'fee': '1000000',
+            'services': ['weddings'],
+            'photostyles': ['night']
+        }
+        self.client.post(reverse_lazy('profile_edit'), data)
+        profile = ImagerProfile.objects.get(user=self.bob)
+        self.assertEqual(profile.camera, 'SLR')
+        self.assertEqual(profile.bio, 'I am not bob or rob.')
+        self.assertEqual(profile.website, 'http://www.theman.gov')
+        self.assertEqual(profile.phone, '222-3222')
+        self.assertEqual(profile.location, 'top of the world')
+        self.assertEqual(profile.fee, 1000000)
+        self.assertIn('weddings', profile.services)
+        self.assertIn('night', profile.photostyles)
+
+    def test_profile_edit_route_post_logged_in_updates_the_user(self):
+        """Test profile edit route post logged in updates the user."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'email': 'test@yahoo.com',
+            'first_name': 'Man',
+            'last_name': 'Thedan',
+            'camera': '',
+            'bio': '',
+            'website': '',
+            'phone': '',
+            'location': '',
+            'fee': '',
+            'services': [],
+            'photostyles': []
+        }
+        self.client.post(reverse_lazy('profile_edit'), data)
+        updated_bob = User.objects.first()
+        self.assertEqual(updated_bob.email, 'test@yahoo.com')
+        self.assertEqual(updated_bob.first_name, 'Man')
+        self.assertEqual(updated_bob.last_name, 'Thedan')
+
+    def test_profile_edit_route_post_logged_in_done_redirects_to_profile(self):
+        """Test post to profile edit route when logged in redirects to profile when done."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'email': 'notatest@gmail.com',
+            'first_name': '',
+            'last_name': '',
+        }
+        response = self.client.post(reverse_lazy('profile_edit'), data, follow=True)
+        self.assertIn(b'Edit Profile\n    </a>', response.content)
+
+    def test_profile_edit_route_post_logged_in_bad_data_has_200(self):
+        """Test that profile edit route post with bad data has 200 code."""
+        self.client.login(username='bob', password='password')
+        data = {}
+        response = self.client.post(reverse_lazy('profile_edit'), data)
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_edit_route_post_login_bad_data_has_error(self):
+        """Test that album create route post with login has error."""
+        self.client.login(username='bob', password='password')
+        data = {}
+        response = self.client.post(reverse_lazy('profile_edit'), data)
+        self.assertIn(b'class="errorlist"', response.content)

@@ -254,6 +254,9 @@ class PhotoAlbumTests(TestCase):
         self.assertEqual(form.fields['photos'].queryset.count(), 36)
 
 
+"""Unit tests for the Photo and Album view classes."""
+
+
 class PhotoAlbumViewTests(TestCase):
     """Tests for the views of imager_images."""
 
@@ -439,6 +442,8 @@ class PhotoAlbumViewTests(TestCase):
         self.assertIsNotNone(photo)
         self.assertEqual(photo.description, 'testing')
 
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_view"))
     def test_photo_create_view_form_valid_sets_current_user_as_user(self):
         """Test photo create view form valid sets current user as user."""
         from imager_images.views import PhotoCreateView
@@ -517,6 +522,9 @@ class PhotoAlbumViewTests(TestCase):
         kwargs = view.get_form_kwargs()
         self.assertIn('username', kwargs)
         self.assertEqual(kwargs['username'], 'bob')
+
+
+"""Tests for the Photo and Album routes."""
 
 
 class PhotoAlbumRouteTests(TestCase):
@@ -599,53 +607,57 @@ class PhotoAlbumRouteTests(TestCase):
         """Test that library route displays all logged in user's things."""
         self.client.login(username='bob', password='password')
         response = self.client.get(reverse_lazy('library'))
-        image_count = response.content.count(b'<img')
-        self.assertEqual(image_count, 17)
+        image_count = response.content.count(b'<div class="col-sm-6 col-md-3"')
+        db_photo_count = Photo.objects.filter(user=self.bob).count()
+        db_album_count = Album.objects.filter(user=self.bob).count()
+        self.assertEqual(image_count, db_photo_count + db_album_count)
 
     def test_photo_gallery_route_has_all_public_photos(self):
         """Test that the photo gallery route has all public photos."""
         response = self.client.get(reverse_lazy('photo_gallery'))
         image_count = response.content.count(b'<img')
-        self.assertEqual(image_count, 23)
+        db_count = Photo.objects.filter(published='PUBLIC').count()
+        self.assertEqual(image_count, db_count)
 
     def test_album_gallery_route_has_all_public_albums(self):
         """Test that the album gallery route has all public albums."""
         response = self.client.get(reverse_lazy('album_gallery'))
         image_count = response.content.count(b'<img')
-        self.assertEqual(image_count, 2)
+        db_count = Album.objects.filter(published='PUBLIC').count()
+        self.assertEqual(image_count, db_count)
 
     def test_photo_detail_route_invalid_id_raises_404(self):
         """Test that an invalid id for photo detail route raises a 404."""
-        response = self.client.get('/images/photos/1000000000/')
+        response = self.client.get(reverse_lazy('photo_detail', kwargs={'id': 1000000000}))
         self.assertEqual(response.status_code, 404)
 
     def test_photo_detail_route_non_public_photo_raises_404(self):
         """Test that a non public photo for photo_detail_route raises a 404."""
         photo = Photo.objects.filter(published='PRIVATE').first()
-        response = self.client.get('/images/photos/{}'.format(photo.id))
+        response = self.client.get(reverse_lazy('photo_detail', kwargs={'id': photo.id}))
         self.assertEqual(response.status_code, 404)
 
     def test_photo_detail_route_valid_id_gets_correct_photo(self):
         """Test that photo_detail_route for valid id has correct photo."""
         photo = Photo.objects.filter(published='PUBLIC').first()
-        response = self.client.get('/images/photos/{}'.format(photo.id))
+        response = self.client.get(reverse_lazy('photo_detail', kwargs={'id': photo.id}))
         self.assertIn(photo.title.encode('utf8'), response.content)
 
     def test_album_detail_route_invalid_id_raises_404(self):
         """Test that an invalid id for album detail route raises a 404."""
-        response = self.client.get('/images/albums/1000000000/')
+        response = self.client.get(reverse_lazy('album_detail', kwargs={'id': 1000000000}))
         self.assertEqual(response.status_code, 404)
 
     def test_album_detail_route_non_public_album_raises_404(self):
         """Test that a non public album for album_detail_route raises a 404."""
         album = Album.objects.filter(published='PRIVATE').first()
-        response = self.client.get('/images/albums/{}'.format(album.id))
+        response = self.client.get(reverse_lazy('album_detail', kwargs={'id': album.id}))
         self.assertEqual(response.status_code, 404)
 
     def test_album_detail_route_valid_id_gets_correct_album(self):
         """Test that album_detail_route for valid id has correct album."""
         album = Album.objects.filter(published='PUBLIC').first()
-        response = self.client.get('/images/albums/{}'.format(album.id))
+        response = self.client.get(reverse_lazy('album_detail', kwargs={'id': album.id}))
         self.assertIn(album.title.encode('utf8'), response.content)
 
     def test_photo_create_route_get_no_login_has_302(self):
@@ -829,8 +841,6 @@ class PhotoAlbumRouteTests(TestCase):
         response = self.client.post(reverse_lazy('album_create'), data, follow=True)
         self.assertIn(b'<h1>Library</h1>', response.content)
 
-    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
-                                               "test_media_for_album_route"))
     def test_album_create_route_post_login_creates_new_album(self):
         """Test that album create route post with login creates a new album."""
         self.client.login(username='bob', password='password')
@@ -846,8 +856,6 @@ class PhotoAlbumRouteTests(TestCase):
         self.assertIsNotNone(album)
         self.assertEqual(album.description, 'testing3')
 
-    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
-                                               "test_media_for_album_route"))
     def test_album_create_route_post_login_bad_data_has_200(self):
         """Test that album create route post with login has 200 code."""
         self.client.login(username='bob', password='password')
@@ -860,8 +868,6 @@ class PhotoAlbumRouteTests(TestCase):
         response = self.client.post(reverse_lazy('album_create'), data)
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
-                                               "test_media_for_album_route"))
     def test_album_create_route_post_login_bad_data_has_error(self):
         """Test that album create route post with login has error."""
         self.client.login(username='bob', password='password')
@@ -872,4 +878,145 @@ class PhotoAlbumRouteTests(TestCase):
             'published': 'PRIVATE'
         }
         response = self.client.post(reverse_lazy('album_create'), data)
+        self.assertIn(b'class="errorlist"', response.content)
+
+    def test_photo_edit_route_get_bad_id_gets_404(self):
+        """Test get to photo edit route for bad id has 404 code."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('photo_edit', kwargs={'id': 1000000000}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_photo_edit_route_get_not_logged_in_has_302(self):
+        """Test get to photo edit route when not logged in has 302 code."""
+        response = self.client.get(reverse_lazy('photo_edit', kwargs={'id': 5}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_photo_edit_route_get_not_logged_in_redirects_to_login(self):
+        """Test get to photo edit route when not logged in redirects to login."""
+        response = self.client.get(reverse_lazy('photo_edit', kwargs={'id': 5}), follow=True)
+        self.assertIn(b'Login</h1>', response.content)
+
+    def test_photo_edit_route_get_logged_in_has_200(self):
+        """Test get to photo edit route when logged in has 200 code."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('photo_edit', kwargs={'id': 5}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_photo_edit_route_get_logged_in_has_edit_form(self):
+        """Test get to photo edit route when logged in has edit form."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('photo_edit', kwargs={'id': 5}))
+        self.assertIn(b'Edit Photo</h1>', response.content)
+
+    def test_photo_edit_route_post_bad_id_gets_404(self):
+        """Test get to photo edit route for bad id has 404 code."""
+        self.client.login(username='bob', password='password')
+        response = self.client.post(reverse_lazy('photo_edit', kwargs={'id': 1000000000}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_photo_edit_route_post_not_logged_in_has_302(self):
+        """Test post to photo edit route when not logged in has 302 code."""
+        response = self.client.post(reverse_lazy('photo_edit', kwargs={'id': 5}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_photo_edit_route_post_not_logged_in_redirects_to_login(self):
+        """Test post to photo edit route when not logged in redirects to login."""
+        response = self.client.post(reverse_lazy('photo_edit', kwargs={'id': 5}), follow=True)
+        self.assertIn(b'Login</h1>', response.content)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def test_photo_edit_route_post_logged_in_has_302(self):
+        """Test post to photo edit route when logged in has 302 code."""
+        self.client.login(username='bob', password='password')
+        image = SimpleUploadedFile(
+            name='sample_img.jpg',
+            content=open(
+                os.path.join(settings.BASE_DIR, 'static/test_image.jpg'), 'rb'
+            ).read(),
+            content_type="image/jpeg"
+        )
+        data = {
+            'title': 'test4',
+            'description': 'testing4',
+            'image': image,
+            'published': 'PRIVATE'
+        }
+        response = self.client.post(reverse_lazy('photo_edit', kwargs={'id': 5}), data)
+        self.assertEqual(response.status_code, 302)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def test_photo_edit_route_post_logged_in_updates_the_correct_photo(self):
+        """Test photo edit route post logged in updates the users photo."""
+        self.client.login(username='bob', password='password')
+        original_photo = Photo.objects.get(id=5)
+        image = SimpleUploadedFile(
+            name='sample_img.jpg',
+            content=open(
+                os.path.join(settings.BASE_DIR, 'static/test_image.jpg'), 'rb'
+            ).read(),
+            content_type="image/jpeg"
+        )
+        data = {
+            'title': 'test5',
+            'description': 'testing5',
+            'image': image,
+            'published': 'PRIVATE'
+        }
+        self.client.post(reverse_lazy('photo_edit', kwargs={'id': 5}), data)
+        photo = Photo.objects.get(id=5)
+        self.assertEqual(photo.title, 'test5')
+        self.assertEqual(photo.description, 'testing5')
+        self.assertIsNot(photo.image, original_photo.image)
+
+    def test_photo_edit_route_post_logged_in_public_adds_published_date(self):
+        """Test photo edit route post logged in set published to public sets published date."""
+        self.client.login(username='bob', password='password')
+        data = {
+            'published': 'PUBLIC'
+        }
+        self.client.post(reverse_lazy('photo_edit', kwargs={'id': 5}), data)
+        photo = Photo.objects.get(id=5)
+        now = datetime.now().strftime('%x %X')[:2]
+        self.assertEqual(photo.published, 'PUBLIC')
+        self.assertEqual(photo.date_published.strftime('%x %X')[:2], now)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def test_photo_edit_route_post_logged_in_done_redirects_to_library(self):
+        """Test post to photo edit route when logged in redirects to library when done."""
+        self.client.login(username='bob', password='password')
+        image = SimpleUploadedFile(
+            name='sample_img.jpg',
+            content=open(
+                os.path.join(settings.BASE_DIR, 'static/test_image.jpg'), 'rb'
+            ).read(),
+            content_type="image/jpeg"
+        )
+        data = {
+            'title': 'test6',
+            'description': 'testing6',
+            'image': image,
+            'published': 'PRIVATE'
+        }
+        response = self.client.post(reverse_lazy('photo_edit', kwargs={'id': 5}), data, follow=True)
+        self.assertIn(b'<h1>Library</h1>', response.content)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def test_photo_edit_route_post_logged_in_bad_data_has_200(self):
+        """Test that photo create route post with login has 200 code."""
+        self.client.login(username='bob', password='password')
+        data = {}
+        response = self.client.post(reverse_lazy('photo_edit', kwargs={'id': 5}), data)
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR,
+                                               "test_media_for_photo_route"))
+    def test_photo_edit_route_post_login_bad_data_has_error(self):
+        """Test that photo create route post with login has error."""
+        self.client.login(username='bob', password='password')
+        data = {}
+        response = self.client.post(reverse_lazy('photo_edit', kwargs={'id': 5}), data)
         self.assertIn(b'class="errorlist"', response.content)
