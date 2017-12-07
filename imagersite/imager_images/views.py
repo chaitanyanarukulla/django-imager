@@ -134,6 +134,10 @@ class AlbumEditView(LoginRequiredMixin, UpdateView):
     form_class = AlbumForm
     success_url = reverse_lazy('library')
 
+    def get_queryset(self):
+        """Limit editable albums to those owned by the user."""
+        return Album.objects.filter(user=self.request.user)
+
     def get_form_kwargs(self):
         """Update the kwargs to include the current user's username."""
         kwargs = super(AlbumEditView, self).get_form_kwargs()
@@ -150,3 +154,7 @@ class PhotoEditView(LoginRequiredMixin, UpdateView):
     model = Photo
     fields = ['title', 'description', 'image', 'published']
     success_url = reverse_lazy('library')
+
+    def get_queryset(self):
+        """Limit editable photos to those owned by the user."""
+        return Photo.objects.filter(user=self.request.user)

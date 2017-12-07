@@ -513,6 +513,15 @@ class PhotoAlbumViewTests(TestCase):
         self.assertIn('username', kwargs)
         self.assertEqual(kwargs['username'], 'bob')
 
+    def test_photo_edit_get_queryset_list_all_users_photos(self):
+        """Test photo_edit view get queryset list all users photos."""
+        from imager_images.views import PhotoEditView
+        request = self.request.get('')
+        request.user = self.bob
+        view = PhotoEditView(request=request)
+        photos = view.get_queryset()
+        self.assertEqual(photos.count(), 15)
+
     def test_album_edit_view_get_form_kwargs_assigns_current_user(self):
         """Test album edit view get form kwargs assigns current user."""
         from imager_images.views import AlbumEditView
@@ -522,6 +531,15 @@ class PhotoAlbumViewTests(TestCase):
         kwargs = view.get_form_kwargs()
         self.assertIn('username', kwargs)
         self.assertEqual(kwargs['username'], 'bob')
+
+    def test_album_edit_get_queryset_list_all_users_albums(self):
+        """Test album_edit view get queryset list all users albums."""
+        from imager_images.views import AlbumEditView
+        request = self.request.get('')
+        request.user = self.bob
+        view = AlbumEditView(request=request)
+        albums = view.get_queryset()
+        self.assertEqual(albums.count(), 2)
 
 
 """Tests for the Photo and Album routes."""
