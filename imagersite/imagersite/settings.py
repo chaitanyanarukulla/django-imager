@@ -55,8 +55,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CSRF_COOKIE_SECURE = True
-
 X_FRAME_OPTIONS = 'DENY'
 
 ROOT_URLCONF = 'imagersite.urls'
