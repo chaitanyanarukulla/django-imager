@@ -132,7 +132,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
@@ -141,5 +141,18 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "MEDIA")
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Email setup for registration
+
 ACCOUNT_ACTIVATION_DAYS = 7
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_USE_TLS = True
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_HOST_USER = 'imager.time@gmail.com'
+    EMAIL_HOST_PASSWORD = 'qweasdZXC'
+    EMAIL_PORT = 587
