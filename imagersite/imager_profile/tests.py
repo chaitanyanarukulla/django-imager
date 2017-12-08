@@ -23,7 +23,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 
 def fillout_profile(profile, website=None, location=None, fee=None,
-                    bio=None, phone=None, is_active=None):
+                    bio=None, phone=None):
     """Fill out an empty profile."""
     fake = Faker()
     profile.website = website if website else fake.url()
@@ -31,8 +31,6 @@ def fillout_profile(profile, website=None, location=None, fee=None,
     profile.fee = fee if fee is not None else random.uniform(0, 100)
     profile.bio = bio if bio else fake.paragraph()
     profile.phone = phone if phone else fake.phone_number()
-    if is_active is not None:
-        profile.is_active = is_active
 
 
 class ProfileTests(TestCase):
@@ -42,12 +40,12 @@ class ProfileTests(TestCase):
     def setUpClass(cls):
         """Add one minimal user to the database."""
         super(ProfileTests, cls).setUpClass()
-        user = UserFactory(username='bob', email='bob@bob.net')
+        user = UserFactory(username='dan', email='dan@dan.net')
         user.set_password('password')
-        user.first_name = 'Bob'
-        user.last_name = 'Ross'
+        user.first_name = 'Dan'
+        user.last_name = 'Theman'
         user.save()
-        cls.bob = user
+        cls.dan = user
         fillout_profile(user.profile,
                         website='www.fun.net',
                         location='nowhere',
@@ -56,10 +54,10 @@ class ProfileTests(TestCase):
                         phone='123-4567')
         user.profile.save()
 
-        user = UserFactory.create()
+        user = UserFactory.create(is_active=False)
         user.set_password(factory.Faker('password'))
         user.save()
-        fillout_profile(user.profile, is_active=False)
+        fillout_profile(user.profile)
         user.profile.save()
 
         for _ in range(10):
@@ -71,8 +69,8 @@ class ProfileTests(TestCase):
 
     def test_profile_to_string_is_correct(self):
         """Test that the __str__ method returns the profile username."""
-        one_profile = ImagerProfile.objects.get(user__username='bob')
-        self.assertEqual(str(one_profile), 'Profile: bob')
+        one_profile = ImagerProfile.objects.get(user__username='dan')
+        self.assertEqual(str(one_profile), 'Profile: dan')
 
     def test_profile_is_created_when_user_is_saved(self):
         """Test that a profile is created automatically when a user is."""
@@ -92,48 +90,48 @@ class ProfileTests(TestCase):
 
     def test_profile_has_website(self):
         """Test that a profile has a website."""
-        active_user = User.objects.get(username='bob')
+        active_user = User.objects.get(username='dan')
         one_profile = ImagerProfile.objects.get(user=active_user)
         self.assertEquals(one_profile.website, 'www.fun.net')
 
     def test_profile_has_location(self):
         """Test that a profile has a location."""
-        active_user = User.objects.get(username='bob')
+        active_user = User.objects.get(username='dan')
         one_profile = ImagerProfile.objects.get(user=active_user)
         self.assertEquals(one_profile.location, 'nowhere')
 
     def test_profile_has_fee(self):
         """Test that a profile has a fee."""
-        active_user = User.objects.get(username='bob')
+        active_user = User.objects.get(username='dan')
         one_profile = ImagerProfile.objects.get(user=active_user)
         self.assertEquals(one_profile.fee, 20.00)
 
     def test_profile_has_bio(self):
         """Test that a profile has a bio."""
-        active_user = User.objects.get(username='bob')
+        active_user = User.objects.get(username='dan')
         one_profile = ImagerProfile.objects.get(user=active_user)
         self.assertEquals(one_profile.bio, 'I photograph things all the time.')
 
     def test_profile_has_phone(self):
         """Test that a profile has a phone."""
-        active_user = User.objects.get(username='bob')
+        active_user = User.objects.get(username='dan')
         one_profile = ImagerProfile.objects.get(user=active_user)
         self.assertEquals(one_profile.phone, '123-4567')
 
     def test_user_can_point_to_its_profile(self):
         """Test that a user and profile are connected."""
-        one_user = User.objects.get(username='bob')
+        one_user = User.objects.get(username='dan')
         self.assertIsNotNone(one_user.profile)
 
-    def test_profile_is_active_by_default(self):
+    def test_profile_is_active_for_active_user(self):
         """Test that a profile is active."""
-        active_user = User.objects.get(username='bob')
+        active_user = User.objects.get(username='dan')
         one_profile = ImagerProfile.objects.get(user=active_user)
         self.assertTrue(one_profile.is_active)
 
-    def test_all_items_in_active(self):
+    def test_all_active_profiles_in_active(self):
         """Test that active method gets all active profiles."""
-        active_profiles = ImagerProfile.active()
+        active_profiles = ImagerProfile.active
         all_profiles = ImagerProfile.objects.all()
         self.assertEquals(active_profiles.count(), all_profiles.count() - 1)
 
@@ -147,17 +145,17 @@ class ProfileTests(TestCase):
 
     def test_profile_form_has_user_fields(self):
         """Test profile form has user fields."""
-        form = ImagerProfileForm(username=self.bob.username)
+        form = ImagerProfileForm(username=self.dan.username)
         self.assertIn('email', form.fields)
         self.assertIn('first_name', form.fields)
         self.assertIn('last_name', form.fields)
 
     def test_profile_form_has_user_fields_filled_from_user(self):
         """Test profile form has user fields."""
-        form = ImagerProfileForm(username=self.bob.username)
-        self.assertEqual(self.bob.email, form.fields['email'].initial)
-        self.assertEqual(self.bob.first_name, form.fields['first_name'].initial)
-        self.assertEqual(self.bob.last_name, form.fields['last_name'].initial)
+        form = ImagerProfileForm(username=self.dan.username)
+        self.assertEqual(self.dan.email, form.fields['email'].initial)
+        self.assertEqual(self.dan.first_name, form.fields['first_name'].initial)
+        self.assertEqual(self.dan.last_name, form.fields['last_name'].initial)
 
 
 """Unit tests for the Profile view classes."""
