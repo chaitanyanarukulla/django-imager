@@ -7,10 +7,22 @@ from django.forms import ModelForm
 from multiselectfield import MultiSelectField
 
 
+class ActiveImagerProfileManager(models.Manager):
+    """Custom manager for only active profiles."""
+
+    def get_queryset(self):
+        """Limit the queryset to only profiles with active users."""
+        all_profiles = super(ActiveImagerProfileManager, self).get_queryset()
+        return all_profiles.filter(user__is_active=True)
+
+
 class ImagerProfile(models.Model):
     """Profile for a user of Imager."""
 
     user = models.OneToOneField(User, related_name='profile')
+
+    objects = models.Manager()
+    active = ActiveImagerProfileManager()
 
     website = models.URLField(max_length=180, blank=True, null=True)
     location = models.CharField(max_length=180, blank=True, null=True)
@@ -37,11 +49,11 @@ class ImagerProfile(models.Model):
                  ('3d', '3D'),
                  ('artistic', 'Artistic'),
                  ('underwater', 'Underwater')))
-    is_active = models.BooleanField(default=True)
 
-    def active():
-        """Get a QuerySet of all active profiles."""
-        return ImagerProfile.objects.filter(is_active=True)
+    @property
+    def is_active(self):
+        """Whether the User of the profile is active or not."""
+        return self.user.is_active
 
     def __str__(self):
         """The string from of the profile."""
