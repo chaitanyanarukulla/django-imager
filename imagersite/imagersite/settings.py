@@ -55,6 +55,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CSRF_COOKIE_SECURE = True
+
+X_FRAME_OPTIONS = 'DENY'
+
 ROOT_URLCONF = 'imagersite.urls'
 
 TEMPLATES = [
@@ -156,3 +160,5 @@ else:
     EMAIL_HOST_USER = 'imager.time@gmail.com'
     EMAIL_HOST_PASSWORD = 'qweasdZXC'
     EMAIL_PORT = 587
+
+    DEFAULT_FROM_EMAIL = 'imager.time@gmail.com'
