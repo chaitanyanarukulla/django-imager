@@ -273,3 +273,5 @@ fabric.properties
 imagersite/MEDIA/*
 !imagersite/MEDIA/.gitkeep
 
+hosts
+
