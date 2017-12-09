@@ -87,10 +87,39 @@ You can test this application by first exporting an environmental variable point
 (ENV) django-imager $ python imagersite/manage.py test imagersite
 ```
 
+## Deploying
+You can deploy this application to AWS using Ansible.
+
+Create a `hosts` file in the root of `django-imager`
+```
+[us-west-2]
+(your EC2 public IP address)
+
+[us-west-2:vars]
+ansible_ssh_user=(your EC2 user)
+ansible_ssh_private_key_file=/path/to/your/key.pem
+
+server_dns=(your EC2 public DNS)
+secret_key='secret'
+db_name='(your RDS database name)'
+db_host='(your RDS endpoint)'
+db_user='(your RDS username)'
+db_pass='(your RDS password)'
+test_db='test_imagersite'
+allowed_hosts='(your EC2 public DNS) (your EC2 public IP address)'
+```
+
+Deploy the application with `ansible-playbook`
+```
+(ENV) django-imager $ ansible-playbook -i hosts playbook/imager_playbook.yml
+```
+
 ## Architecture
 Built with Python and Django framework. Tested through Django testing suite.
 
 ## Change Log
+
+12-08-2017 6:40pm - Created Ansible playbook for deployment to AWS
 
 12-07-2017 2:18pm - Fixed a bug in edit views that allowed editing of other people's files
 
