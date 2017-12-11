@@ -15,8 +15,13 @@ env DB_USER='{{ db_user }}'
 env DB_PASS='{{ db_pass }}'
 env TEST_DB='{{ test_db }}'
 env ALLOWED_HOSTS='{{ allowed_hosts }}'
+env AWS_STORAGE_BUCKET_NAME='{{ aws_storage_bucket_name }}'
+env AWS_ACCESS_KEY_ID='{{ aws_access_key_id }}'
+env AWS_SECRET_ACCESS_KEY='{{ aws_secret_access_key }}'
 
 env DEBUG=''
 
 exec /home/ubuntu/django-imager/ENV/bin/python manage.py migrate
+exec /home/ubuntu/django-imager/ENV/bin/python manage.py collectstatic
+
 exec /home/ubuntu/django-imager/ENV/bin/gunicorn -b :8080 imagersite.wsgi
