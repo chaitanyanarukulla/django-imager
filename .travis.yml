@@ -10,15 +10,19 @@ before_script:
 
 #set some environment variables
 env:
-  - DB_NAME=imagersite DB_USER=postgres DB_HOST='127.0.0.1' SECRET_KEY='potato'
+  - DB_NAME=imagersite
+  - DB_USER=postgres
+  - DB_HOST='127.0.0.1'
+  - SECRET_KEY='potato'
+  - DEBUG='True'
 
 # command to install dependencies
 install:
   - pip install -r requirements.txt
   - pip install coveralls
 
-# commands to run tests 
-script: 
+# commands to run tests
+script:
   - python imagersite/manage.py migrate
   - coverage run imagersite/manage.py test imagersite
 
