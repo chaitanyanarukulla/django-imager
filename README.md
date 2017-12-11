@@ -5,7 +5,7 @@
 
 **Author**: Megan Flood and Chaitanya Naru
 
-**Version**: 2.2.1
+**Version**: 2.3.0
 
 ## Overview
 A simple image management website using Django.
@@ -107,6 +107,10 @@ db_user='(your RDS username)'
 db_pass='(your RDS password)'
 test_db='test_imagersite'
 allowed_hosts='(your EC2 public DNS) (your EC2 public IP address)'
+
+aws_storage_bucket_name='(your S3 bucket name)'
+aws_access_key_id='(your IAM user access key id)'
+aws_secret_access_key='(your IAM user secret access key)'
 ```
 
 Deploy the application with `ansible-playbook`
@@ -118,6 +122,8 @@ Deploy the application with `ansible-playbook`
 Built with Python and Django framework. Tested through Django testing suite.
 
 ## Change Log
+
+12-11-2017 2:55pm - Moved all atatic resources to AWS S3
 
 12-08-2017 6:40pm - Created Ansible playbook for deployment to AWS
 
