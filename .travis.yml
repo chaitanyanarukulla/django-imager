@@ -10,11 +10,7 @@ before_script:
 
 #set some environment variables
 env:
-  - DB_NAME=imagersite
-  - DB_USER=postgres
-  - DB_HOST='127.0.0.1'
-  - SECRET_KEY='potato'
-  - DEBUG='True'
+  - DB_NAME=imagersite DB_USER=postgres DB_HOST='127.0.0.1' SECRET_KEY='potato' DEBUG='True'
 
 # command to install dependencies
 install:
