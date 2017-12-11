@@ -28,7 +28,6 @@ class ProfileView(DetailView):
 
     def get_context_data(self, **kwargs):
         """Get the user's profile, photos, and albums."""
-        # import pdb; pdb.set_trace()
         context = super(ProfileView, self).get_context_data(**kwargs)
         username = kwargs['object'].user.username
 
