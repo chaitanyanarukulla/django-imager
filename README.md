@@ -5,7 +5,7 @@
 
 **Author**: Megan Flood and Chaitanya Naru
 
-**Version**: 2.3.0
+**Version**: 2.4.0
 
 ## Overview
 A simple image management website using Django.
@@ -27,6 +27,7 @@ A simple image management website using Django.
 |`/images/albums/<id>/edit`|album_edit|edit a single album|
 |`/images/photos/add`|photos_create|upload new pictures|
 |`/images/albums/add`|photos_create|create new albums|
+|`/api/v1/photos`|api_photo_list|list of all the photos for authenticated user as JSON|
 |`/accounts/*`|all registration routes| included from [django-registration](http://django-registration.readthedocs.io/en/stable/index.html)|
 |`/admin/*`|all built-in admin routes| included from [Django admin](https://docs.djangoproject.com/en/1.11/ref/contrib/admin/#reversing-admin-urls)|
 
@@ -122,6 +123,8 @@ Deploy the application with `ansible-playbook`
 Built with Python and Django framework. Tested through Django testing suite.
 
 ## Change Log
+
+12-11-2017 6:03pm - Created an API route for listing a single user's photos with tests
 
 12-11-2017 2:55pm - Moved all atatic resources to AWS S3
 
