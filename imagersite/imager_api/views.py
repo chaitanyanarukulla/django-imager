@@ -4,7 +4,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 
-class PhotoList(generics.ListAPIView):
+class PhotoListAPI(generics.ListAPIView):
     """List all of a user's photos."""
 
     permission_classes = (IsAuthenticated,)
