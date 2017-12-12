@@ -124,7 +124,7 @@ Built with Python and Django framework. Tested through Django testing suite.
 
 ## Change Log
 
-12-11-2017 6:03pm - Created an API route for listing a single user's photos with tests
+12-11-2017 6:03pm - Added an API route for listing a single user's photos with tests
 
 12-11-2017 2:55pm - Moved all atatic resources to AWS S3
 
