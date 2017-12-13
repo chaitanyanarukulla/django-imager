@@ -1,6 +1,7 @@
 """."""
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import Http404
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.urls import reverse_lazy
@@ -77,6 +78,19 @@ class AlbumDetailView(DetailView):
         """Get context data and add default cover."""
         context = super(AlbumDetailView, self).get_context_data(**kwargs)
         context['default_cover'] = settings.STATIC_URL + 'default_cover.png'
+
+        this_page = self.request.GET.get("page", 1)
+        pages = Paginator(self.object.photos.all(), 4)
+
+        try:
+            photos_page = pages.page(this_page)
+        except PageNotAnInteger:
+            photos_page = pages.page(1)
+        except EmptyPage:
+            photos_page = pages.page(pages.num_pages)
+
+        context['photos_page'] = photos_page
+
         return context
 
     def get_object(self):
