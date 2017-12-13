@@ -402,13 +402,15 @@ class PhotoAlbumViewTests(TestCase):
         response = view.get_object()
         self.assertEqual(response.photos, album.photos)
 
-    def test_album_detail_view_has_album(self):
+    def test_album_detail_view_get_context_data_has_album(self):
         """Test that the album detail_view has album."""
         from imager_images.views import AlbumDetailView
-        view = AlbumDetailView(object='')
+        request = self.request.get('')
+        view = AlbumDetailView(object=self.bob.albums.first(), request=request)
         data = view.get_context_data()
         self.assertIn('view', data)
         self.assertIn('default_cover', data)
+        self.assertIn('photos_page', data)
 
     def test_photo_create_view_logged_in_has_upload_form(self):
         """Test that photo create view  has upload form."""
