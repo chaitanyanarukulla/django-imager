@@ -42,8 +42,10 @@ INSTALLED_APPS = [
     'multiselectfield',
     'sorl.thumbnail',
     'storages',
+    'rest_framework',
     'imager_profile',
     'imager_images',
+    'imager_api',
 ]
 
 MIDDLEWARE = [

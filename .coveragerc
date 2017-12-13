@@ -8,6 +8,8 @@ omit =
     */tests.py
     */manage.py
     */wsgi.py
+    */settings.py
+    */custom_storages.py
 
 source =
     imagersite
