@@ -334,7 +334,7 @@ class PhotoAlbumViewTests(TestCase):
         response = view.get(request)
         response.render()
         image_count = response.content.count(b'<img')
-        self.assertEqual(image_count, 17)
+        self.assertEqual(image_count, 6)
 
     def test_library_view_get_queryset_list_all_users_albums(self):
         """Test library view get queryset list all users albums."""
@@ -350,8 +350,8 @@ class PhotoAlbumViewTests(TestCase):
         request.user = self.bob
         view = LibraryView(request=request, object_list='')
         data = view.get_context_data()
-        self.assertEqual(data['albums'].count(), 2)
-        self.assertEqual(data['photos'].count(), 15)
+        self.assertEqual(len(data['albums']), 2)
+        self.assertEqual(len(data['photos']), 4)
         self.assertIn('default_cover', data)
 
     def test_album_gallery_view_has_all_public_albums(self):
@@ -631,7 +631,9 @@ class PhotoAlbumRouteTests(TestCase):
         response = self.client.get(reverse_lazy('library'))
         image_count = response.content.count(b'<img')
         db_photo_count = Photo.objects.filter(user=self.bob).count()
+        db_photo_count = min(db_photo_count, 4)
         db_album_count = Album.objects.filter(user=self.bob).count()
+        db_album_count = min(db_album_count, 4)
         self.assertEqual(image_count, db_photo_count + db_album_count)
 
     def test_photo_gallery_route_has_all_public_photos(self):
