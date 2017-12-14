@@ -354,6 +354,44 @@ class PhotoAlbumViewTests(TestCase):
         self.assertEqual(len(data['photos']), 4)
         self.assertIn('default_cover', data)
 
+    def test_library_view_get_context_data_non_int_album_page_has_page1(self):
+        """Test library  view get_context_data non int album page has page1."""
+        from imager_images.views import LibraryView
+        request = self.request.get('', {'album_page': 'bobspage'})
+        request.user = self.bob
+        view = LibraryView(object_list='', request=request)
+        data = view.get_context_data()
+        self.assertEqual(data['albums'].number, 1)
+
+    def test_library_view_get_context_data_invalid_album_page_has_last_page(self):
+        """Test library  view get_context_data invalid album page has last page."""
+        from imager_images.views import LibraryView
+        request = self.request.get('', {'album_page': 1000000000})
+        request.user = self.bob
+        view = LibraryView(object_list='', request=request)
+        data = view.get_context_data()
+        page = data['albums']
+        self.assertEqual(page.number, page.paginator.num_pages)
+
+    def test_library_view_get_context_data_non_int_photo_page_has_page1(self):
+        """Test library  view get_context_data non int photo page has page1."""
+        from imager_images.views import LibraryView
+        request = self.request.get('', {'photo_page': 'bobspage'})
+        request.user = self.bob
+        view = LibraryView(object_list='', request=request)
+        data = view.get_context_data()
+        self.assertEqual(data['photos'].number, 1)
+
+    def test_library_view_get_context_data_invalid_photo_page_has_last_page(self):
+        """Test library  view get_context_data invalid photo page has last page."""
+        from imager_images.views import LibraryView
+        request = self.request.get('', {'photo_page': 1000000000})
+        request.user = self.bob
+        view = LibraryView(object_list='', request=request)
+        data = view.get_context_data()
+        page = data['photos']
+        self.assertEqual(page.number, page.paginator.num_pages)
+
     def test_album_gallery_view_has_all_public_albums(self):
         """Test that the album_gallery_view has all public albums."""
         from imager_images.views import AlbumGalleryView
@@ -411,6 +449,23 @@ class PhotoAlbumViewTests(TestCase):
         self.assertIn('view', data)
         self.assertIn('default_cover', data)
         self.assertIn('photos_page', data)
+
+    def test_album_detail_view_get_context_data_non_int_page_has_page1(self):
+        """Test album detail view get_context_data non int page has page1."""
+        from imager_images.views import AlbumDetailView
+        request = self.request.get('', {'page': 'bobspage'})
+        view = AlbumDetailView(object=self.bob.albums.first(), request=request)
+        data = view.get_context_data()
+        self.assertEqual(data['photos_page'].number, 1)
+
+    def test_album_detail_view_get_context_data_invalid_page_has_last_page(self):
+        """Test album detail view get_context_data invalid page has last page."""
+        from imager_images.views import AlbumDetailView
+        request = self.request.get('', {'page': 1000000000})
+        view = AlbumDetailView(object=self.bob.albums.first(), request=request)
+        data = view.get_context_data()
+        page = data['photos_page']
+        self.assertEqual(page.number, page.paginator.num_pages)
 
     def test_photo_create_view_logged_in_has_upload_form(self):
         """Test that photo create view  has upload form."""
