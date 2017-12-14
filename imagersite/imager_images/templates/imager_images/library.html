@@ -1,0 +1,125 @@
+{% extends 'imagersite/base.html' %}
+{% load thumbnail %}
+
+
+{% block content %}
+<h1>Library</h1>
+
+<div class="tz-gallery-grid">
+<h2 class="row">
+    <span class="col-4">Albums</span>
+    <a href="{% url 'album_create' %}" class="btn btn-primary btn-lg btn-block login-button col-4" role="button">
+        Add New Album
+    </a>
+</h2>
+
+    <div class="row">
+    {% for album in albums %}
+        <div class="col-sm-6 col-md-3">
+                <a href="{% url 'album_detail' id=album.id %}">
+            <div class="thumbnail">
+                    {% if album.cover %}
+                    {% thumbnail album.cover.image "250x250" crop="center" as im %}
+                        <img src="{{ im.url }}" alt="{{ album.title }}">
+                    {% endthumbnail %}
+                    {% else %}
+                        <img src="{{ default_cover }}" alt="{{ album.title }}">
+                    {% endif %}
+                <div class="caption">
+                    <h3 class="text-dark">{{album.title}}</h3>
+                    <a href="{% url 'album_edit' id=album.id %}" class="btn btn-outline-primary btn-sm edit-button">Edit</a>
+                </div>
+            </div>
+                </a>
+        </div>
+    {% endfor %}
+    </div>
+    <ul class="pagination justify-content-center">
+
+    {% if albums.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?album_page={{ albums.previous_page_number }}&photo_page={{ photos.number }}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+        <span class="sr-only">Previous</span>
+      </a>
+    </li>
+    {% endif %}
+
+    {% if albums.paginator.num_pages > 1 %}
+    {% for page_num in albums.paginator.page_range %}
+    <li class="page-item {% if page_num == albums.number %}active{% endif %}">
+        <a class="page-link" href="?album_page={{ page_num }}&photo_page={{ photos.number }}">{{ page_num }}</a>
+    </li>
+    {% endfor %}
+    {% endif %}
+
+    {% if albums.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?album_page={{ albums.next_page_number }}&photo_page={{ photos.number }}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+        <span class="sr-only">Next</span>
+      </a>
+    </li>
+    {% endif %}
+    
+</ul>
+
+</div>
+
+<div class="tz-gallery">
+<h2 class="row">
+    <span class="col-4">Photos</span>
+    <a href="{% url 'photo_create' %}" class="btn btn-primary btn-lg btn-block login-button col-4" role="button">
+        Add New Photo
+    </a>
+</h2>
+<div class="row">
+    {% for photo in photos %}
+
+        <div class="col-sm-6 col-md-3">
+
+            <div>
+                <a class="lightbox fa fa-search" href="{{ photo.image.url }}">
+                    {% thumbnail photo.image "250x250" crop="center" as im %}
+                        <img src="{{ im.url }}" alt="{{photo.title}}">
+                    {% endthumbnail %}
+                </a>
+            </div>
+            <div class="photo-buttons position-absolute ">
+            <a href="{% url 'photo_detail' id=photo.id %}" class="btn btn-outline-primary btn-sm edit-button">Details</a>
+            <a href="{% url 'photo_edit' id=photo.id %}" class="btn btn-outline-primary btn-sm edit-button">Edit</a>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+    <ul class="pagination justify-content-center">
+
+    {% if photos.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?album_page={{ albums.number }}&photo_page={{ photos.previous_page_number }}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+        <span class="sr-only">Previous</span>
+      </a>
+    </li>
+    {% endif %}
+
+    {% if photos.paginator.num_pages > 1 %}
+    {% for page_num in photos.paginator.page_range %}
+    <li class="page-item {% if page_num == photos.number %}active{% endif %}">
+        <a class="page-link" href="?album_page={{ albums.number }}&photo_page={{ page_num }}">{{ page_num }}</a>
+    </li>
+    {% endfor %}
+    {% endif %}
+
+    {% if photos.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?album_page={{ albums.number }}&photo_page={{ photos.next_page_number }}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+        <span class="sr-only">Next</span>
+      </a>
+    </li>
+    {% endif %}
+    
+</ul>
+{% endblock content %}

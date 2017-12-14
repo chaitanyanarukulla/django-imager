@@ -1,0 +1,82 @@
+{% extends 'imagersite/base.html' %}
+{% load thumbnail %}
+
+
+{% block content %}
+<h1>{{ album.title }}</h1>
+<p class="page-description text-center">
+    Posted by <a class="text-muted" href="{% url 'profile' username=album.user.username %}">{{ album.user.username }}</a>
+</p>
+
+<div class="tz-gallery row">
+    <div class="col-6 album-detail mr-2">
+        {% if album.cover %}
+        <a class="lightbox fa fa-search" href="{{ album.cover.image.url }}">
+            <img src="{{ album.cover.image.url }}" alt="{{ album.title }}">
+        </a>{% else %}
+        <img src="{{ default_cover }}" alt="{{ album.title }}">
+    {% endif %}
+    </div>
+    <div class="card col px-0">
+            <p class="card-header">Information</p>
+            <ul class="list-group list-group-flush">
+                {% if album.description %}
+                <li class="list-group-item"> {{ album.description }}</li>
+                {% endif %}
+                <li class="list-group-item">Photos: {{ album.photos.count }}</li>
+                <li class="list-group-item">Date uploaded: {{ album.date_uploaded }}</li>
+                <li class="list-group-item">Date modified: {{ album.date_modified }}</li>
+                <li class="list-group-item">Published status: {{ album.get_published_display }}</li>
+                {% if album.date_published %}
+                <li class="list-group-item">Date published: {{ album.date_published }}</li>
+                {% endif %}
+            </ul>
+        </div>
+</div>
+
+         <div class="tz-gallery">
+
+<div class="row">
+    {% for photo in photos_page %}
+
+            <div class="col-sm-6 col-md-3">
+                <a class="lightbox fa fa-search" href="{{ photo.image.url }}">
+                    {% thumbnail photo.image "250x250" crop="center" as im %}
+                        <img src="{{ im.url }}" alt="{{photo.title}}">
+                    {% endthumbnail %}
+                </a>
+            </div>
+    {% endfor %}
+    </div>
+</div>
+
+<ul class="pagination justify-content-center">
+
+    {% if photos_page.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ photos_page.previous_page_number }}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+        <span class="sr-only">Previous</span>
+      </a>
+    </li>
+    {% endif %}
+
+    {% if photos_page.paginator.num_pages > 1 %}
+    {% for page_num in photos_page.paginator.page_range %}
+    <li class="page-item {% if page_num == photos_page.number %}active{% endif %}">
+        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+    </li>
+    {% endfor %}
+    {% endif %}
+
+    {% if photos_page.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ photos_page.next_page_number }}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+        <span class="sr-only">Next</span>
+      </a>
+    </li>
+    {% endif %}
+    
+</ul>
+{% endblock %}
