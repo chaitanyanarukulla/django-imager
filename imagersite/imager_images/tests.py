@@ -691,6 +691,32 @@ class PhotoAlbumRouteTests(TestCase):
         db_album_count = min(db_album_count, 4)
         self.assertEqual(image_count, db_photo_count + db_album_count)
 
+    def test_library_route_logged_in_non_int_album_page_num_is_page_1(self):
+        """Test that the library route displays page 1 for invalid page num."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('library'), {'album_page': 'bobspage'})
+        self.assertIn(b'bob first', response.content)
+
+    def test_library_route_logged_in_empty_album_page_is_last_page(self):
+        """Test that the library route displays last page for empty page num."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('library'), {'album_page': 1000000000})
+        self.assertIn(b'bob second', response.content)
+
+    def test_library_route_logged_in_non_int_photo_page_num_is_page_1(self):
+        """Test that the library route displays page 1 for invalid page num."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('library'), {'photo_page': 'bobspage'})
+        first_photo = self.bob.photos.order_by('date_uploaded').first()
+        self.assertIn(first_photo.title.encode('utf-8'), response.content)
+
+    def test_library_route_logged_in_empty_photo_page_is_last_page(self):
+        """Test that the library route displays last page for empty page num."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('library'), {'photo_page': 1000000000})
+        last_photo = self.bob.photos.order_by('date_uploaded').last()
+        self.assertIn(last_photo.title.encode('utf-8'), response.content)
+
     def test_photo_gallery_route_has_all_public_photos(self):
         """Test that the photo gallery route has all public photos."""
         response = self.client.get(reverse_lazy('photo_gallery'))

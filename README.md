@@ -5,7 +5,7 @@
 
 **Author**: Megan Flood and Chaitanya Naru
 
-**Version**: 2.4.0
+**Version**: 2.5.0
 
 ## Overview
 A simple image management website using Django.
@@ -18,11 +18,11 @@ A simple image management website using Django.
 |`/logout`|logout|log out the currently logged in user|
 |`/profile/<username>`|profile|profile file for given user|
 |`/profile/edit`|profile_edit| edit the current user's profile|
-|`/images/library`|library|library os all the logged in user's albums and photos|
+|`/images/library`|library|library of all the logged in user's albums and photos<br>GET: album_page: page number for albums, photo_page: page number for photos|
 |`/images/photos`|photo_gallery|gallery of all public photos|
 |`/images/albums`|album_gallery|gallery of all public albums|
 |`/images/photos/<id>`|photo_detail|detail of a single photo|
-|`/images/albums/<id>`|album_detail|detail of a single album|
+|`/images/albums/<id>`|album_detail|detail of a single album<br>GET: page: page number for photos in the album|
 |`/images/photos/<id>/edit`|photo_edit|edit a single photo|
 |`/images/albums/<id>/edit`|album_edit|edit a single album|
 |`/images/photos/add`|photos_create|upload new pictures|
@@ -112,6 +112,10 @@ allowed_hosts='(your EC2 public DNS) (your EC2 public IP address)'
 aws_storage_bucket_name='(your S3 bucket name)'
 aws_access_key_id='(your IAM user access key id)'
 aws_secret_access_key='(your IAM user secret access key)'
+
+admin_email='(your email address for admin)'
+admin_email_host='(host for your admin email)'
+admin_email_pass='(password for your admin email)'
 ```
 
 Deploy the application with `ansible-playbook`
@@ -123,6 +127,8 @@ Deploy the application with `ansible-playbook`
 Built with Python and Django framework. Tested through Django testing suite.
 
 ## Change Log
+
+12-14-2017 12:37pm - Added pagination to the library and album detail views with tests
 
 12-11-2017 6:03pm - Added an API route for listing a single user's photos with tests
 
@@ -140,12 +146,12 @@ Built with Python and Django framework. Tested through Django testing suite.
 
 12-02-2017 7:00pm - Added photos and albums create views
 
-12-01-2017 8:37pm - Added photo, album, and profile views with tests.
+12-01-2017 8:37pm - Added photo, album, and profile views with tests
 
-11-28-2017 8:35pm - Added Photo and Album models with tests.
+11-28-2017 8:35pm - Added Photo and Album models with tests
 
-11-28-2017 1:35pm - Added registration, login, and logout functionality with tests.
+11-28-2017 1:35pm - Added registration, login, and logout functionality with tests
 
-11-21-2017 4:21pm - Added Profile Model for Users with tests.
+11-21-2017 4:21pm - Added Profile Model for Users with tests
 
-11-20-2017 12:53pm - Initail scaffolding.
+11-20-2017 12:53pm - Initail scaffolding
