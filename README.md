@@ -8,7 +8,7 @@
 **Version**: 2.5.0
 
 ## Overview
-A simple image management website using Django.
+A simple image management website using [Django](https://www.djangoproject.com/).
 
 ## Routes
 | Route | Name | Description |
@@ -89,7 +89,7 @@ You can test this application by first exporting an environmental variable point
 ```
 
 ## Deploying
-You can deploy this application to AWS using Ansible.
+You can deploy this application to [AWS](https://aws.amazon.com/) using [Ansible](https://www.ansible.com/).
 
 If you do not already have Ansible installed, install it outside your environment with `pip`
 ```
