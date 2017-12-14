@@ -91,8 +91,15 @@ You can test this application by first exporting an environmental variable point
 ## Deploying
 You can deploy this application to AWS using Ansible.
 
-Create a `hosts` file in the root of `django-imager`
+If you do not already have Ansible installed, install it outside your environment with `pip`
 ```
+(ENV) django-imager $ deactivate
+django-imager $ pip install ansible
+django-imager $ source ENV/bin/activate
+```
+
+Create a `hosts` file in the root of `django-imager`
+```yml
 [us-west-2]
 (your EC2 public IP address)
 
