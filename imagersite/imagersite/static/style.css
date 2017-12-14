@@ -31,6 +31,16 @@ nav {
     overflow-y: scroll;
 }
 
+.page-link {
+    color: #000;
+}
+
+.page-item.active .page-link {
+    background-color: #96c7ea;
+    border-color: transparent;
+    color: #000;
+}
+
 .container.gallery-container {
     background-color: #fff;
     color: #35373a;

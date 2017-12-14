@@ -1,6 +1,8 @@
+
 """."""
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import Http404
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.urls import reverse_lazy
@@ -22,8 +24,31 @@ class LibraryView(LoginRequiredMixin, ListView):
         context = super(LibraryView, self).get_context_data()
         user = self.request.user.get_username()
         context['default_cover'] = settings.STATIC_URL + 'default_cover.thumbnail'
-        context['albums'] = self.get_queryset(user)
-        context['photos'] = Photo.objects.filter(user__username=user)
+        albums = self.get_queryset(user).order_by('date_uploaded')
+        photos = Photo.objects.filter(user__username=user).order_by('date_uploaded')
+
+        this_album_page = self.request.GET.get("album_page", 1)
+        album_pages = Paginator(albums, 4)
+
+        try:
+            albums_page = album_pages.page(this_album_page)
+        except PageNotAnInteger:
+            albums_page = album_pages.page(1)
+        except EmptyPage:
+            albums_page = album_pages.page(album_pages.num_pages)
+        context['albums'] = albums_page
+
+        this_photo_page = self.request.GET.get("photo_page", 1)
+        photo_pages = Paginator(photos, 4)
+
+        try:
+            photos_page = photo_pages.page(this_photo_page)
+        except PageNotAnInteger:
+            photos_page = photo_pages.page(1)
+        except EmptyPage:
+            photos_page = photo_pages.page(photo_pages.num_pages)
+        context['photos'] = photos_page
+
         return context
 
 
@@ -77,6 +102,19 @@ class AlbumDetailView(DetailView):
         """Get context data and add default cover."""
         context = super(AlbumDetailView, self).get_context_data(**kwargs)
         context['default_cover'] = settings.STATIC_URL + 'default_cover.png'
+
+        this_page = self.request.GET.get("page", 1)
+        pages = Paginator(self.object.photos.order_by('date_uploaded'), 4)
+
+        try:
+            photos_page = pages.page(this_page)
+        except PageNotAnInteger:
+            photos_page = pages.page(1)
+        except EmptyPage:
+            photos_page = pages.page(pages.num_pages)
+
+        context['photos_page'] = photos_page
+
         return context
 
     def get_object(self):

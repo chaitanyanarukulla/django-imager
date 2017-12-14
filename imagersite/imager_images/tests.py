@@ -334,7 +334,7 @@ class PhotoAlbumViewTests(TestCase):
         response = view.get(request)
         response.render()
         image_count = response.content.count(b'<img')
-        self.assertEqual(image_count, 17)
+        self.assertEqual(image_count, 6)
 
     def test_library_view_get_queryset_list_all_users_albums(self):
         """Test library view get queryset list all users albums."""
@@ -350,9 +350,47 @@ class PhotoAlbumViewTests(TestCase):
         request.user = self.bob
         view = LibraryView(request=request, object_list='')
         data = view.get_context_data()
-        self.assertEqual(data['albums'].count(), 2)
-        self.assertEqual(data['photos'].count(), 15)
+        self.assertEqual(len(data['albums']), 2)
+        self.assertEqual(len(data['photos']), 4)
         self.assertIn('default_cover', data)
+
+    def test_library_view_get_context_data_non_int_album_page_has_page1(self):
+        """Test library  view get_context_data non int album page has page1."""
+        from imager_images.views import LibraryView
+        request = self.request.get('', {'album_page': 'bobspage'})
+        request.user = self.bob
+        view = LibraryView(object_list='', request=request)
+        data = view.get_context_data()
+        self.assertEqual(data['albums'].number, 1)
+
+    def test_library_view_get_context_data_invalid_album_page_has_last_page(self):
+        """Test library  view get_context_data invalid album page has last page."""
+        from imager_images.views import LibraryView
+        request = self.request.get('', {'album_page': 1000000000})
+        request.user = self.bob
+        view = LibraryView(object_list='', request=request)
+        data = view.get_context_data()
+        page = data['albums']
+        self.assertEqual(page.number, page.paginator.num_pages)
+
+    def test_library_view_get_context_data_non_int_photo_page_has_page1(self):
+        """Test library  view get_context_data non int photo page has page1."""
+        from imager_images.views import LibraryView
+        request = self.request.get('', {'photo_page': 'bobspage'})
+        request.user = self.bob
+        view = LibraryView(object_list='', request=request)
+        data = view.get_context_data()
+        self.assertEqual(data['photos'].number, 1)
+
+    def test_library_view_get_context_data_invalid_photo_page_has_last_page(self):
+        """Test library  view get_context_data invalid photo page has last page."""
+        from imager_images.views import LibraryView
+        request = self.request.get('', {'photo_page': 1000000000})
+        request.user = self.bob
+        view = LibraryView(object_list='', request=request)
+        data = view.get_context_data()
+        page = data['photos']
+        self.assertEqual(page.number, page.paginator.num_pages)
 
     def test_album_gallery_view_has_all_public_albums(self):
         """Test that the album_gallery_view has all public albums."""
@@ -402,13 +440,32 @@ class PhotoAlbumViewTests(TestCase):
         response = view.get_object()
         self.assertEqual(response.photos, album.photos)
 
-    def test_album_detail_view_has_album(self):
+    def test_album_detail_view_get_context_data_has_album(self):
         """Test that the album detail_view has album."""
         from imager_images.views import AlbumDetailView
-        view = AlbumDetailView(object='')
+        request = self.request.get('')
+        view = AlbumDetailView(object=self.bob.albums.first(), request=request)
         data = view.get_context_data()
         self.assertIn('view', data)
         self.assertIn('default_cover', data)
+        self.assertIn('photos_page', data)
+
+    def test_album_detail_view_get_context_data_non_int_page_has_page1(self):
+        """Test album detail view get_context_data non int page has page1."""
+        from imager_images.views import AlbumDetailView
+        request = self.request.get('', {'page': 'bobspage'})
+        view = AlbumDetailView(object=self.bob.albums.first(), request=request)
+        data = view.get_context_data()
+        self.assertEqual(data['photos_page'].number, 1)
+
+    def test_album_detail_view_get_context_data_invalid_page_has_last_page(self):
+        """Test album detail view get_context_data invalid page has last page."""
+        from imager_images.views import AlbumDetailView
+        request = self.request.get('', {'page': 1000000000})
+        view = AlbumDetailView(object=self.bob.albums.first(), request=request)
+        data = view.get_context_data()
+        page = data['photos_page']
+        self.assertEqual(page.number, page.paginator.num_pages)
 
     def test_photo_create_view_logged_in_has_upload_form(self):
         """Test that photo create view  has upload form."""
@@ -629,8 +686,36 @@ class PhotoAlbumRouteTests(TestCase):
         response = self.client.get(reverse_lazy('library'))
         image_count = response.content.count(b'<img')
         db_photo_count = Photo.objects.filter(user=self.bob).count()
+        db_photo_count = min(db_photo_count, 4)
         db_album_count = Album.objects.filter(user=self.bob).count()
+        db_album_count = min(db_album_count, 4)
         self.assertEqual(image_count, db_photo_count + db_album_count)
+
+    def test_library_route_logged_in_non_int_album_page_num_is_page_1(self):
+        """Test that the library route displays page 1 for invalid page num."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('library'), {'album_page': 'bobspage'})
+        self.assertIn(b'bob first', response.content)
+
+    def test_library_route_logged_in_empty_album_page_is_last_page(self):
+        """Test that the library route displays last page for empty page num."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('library'), {'album_page': 1000000000})
+        self.assertIn(b'bob second', response.content)
+
+    def test_library_route_logged_in_non_int_photo_page_num_is_page_1(self):
+        """Test that the library route displays page 1 for invalid page num."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('library'), {'photo_page': 'bobspage'})
+        first_photo = self.bob.photos.order_by('date_uploaded').first()
+        self.assertIn(first_photo.title.encode('utf-8'), response.content)
+
+    def test_library_route_logged_in_empty_photo_page_is_last_page(self):
+        """Test that the library route displays last page for empty page num."""
+        self.client.login(username='bob', password='password')
+        response = self.client.get(reverse_lazy('library'), {'photo_page': 1000000000})
+        last_photo = self.bob.photos.order_by('date_uploaded').last()
+        self.assertIn(last_photo.title.encode('utf-8'), response.content)
 
     def test_photo_gallery_route_has_all_public_photos(self):
         """Test that the photo gallery route has all public photos."""
